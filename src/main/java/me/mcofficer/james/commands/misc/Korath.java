@@ -13,13 +13,13 @@ import java.util.Arrays;
 
 public class Korath extends Command {
 
-    private final KorathTranslator translator;
+    protected final KorathTranslator translator;
 
     public Korath(KorathTranslator translator) {
         this.translator = translator;
         name = "korath";
-        help = "Applies the Korath encoding on Q. Translate Q from English to Indonesian, reverses letters in words, and passes it through the cipher.";
-        arguments = "Q";
+        help = "Applies the Korath encoding on <english>. Translate <english> from English to Indonesian, reverses letters in words, and passes it through the cipher.";
+        arguments = "<english>";
         category = James.misc;
     }
 
@@ -28,7 +28,7 @@ public class Korath extends Command {
         try {
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setTitle("Korath Encoding");
-            translator.korath(event.getArgs(), embedBuilder);
+            runTranslator(event.getArgs(), embedBuilder);
             event.reply(embedBuilder.build());
         }
         catch (IOException e) {
@@ -36,5 +36,9 @@ public class Korath extends Command {
             e.printStackTrace(new PrintWriter(stringWriter));
             event.reply("An error occured:\n```" + stringWriter.toString() + "```");
         }
+    }
+
+    protected void runTranslator(String query, EmbedBuilder builder) throws IOException {
+        translator.korath(query, builder);
     }
 }

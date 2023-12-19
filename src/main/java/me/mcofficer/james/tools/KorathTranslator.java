@@ -30,23 +30,42 @@ public class KorathTranslator extends Translator {
      * @return The translated text. Will need massaging to be usable in game.
      */
     public void korath(String query, EmbedBuilder embed) throws IOException{
-        StringBuilder builder = new StringBuilder();
-
         embed.setFooter("This tool only aids translation. You must massage the words for readability. Sometimes the cipher will produce obscene or offensive terms. Words with standard translations, like human/Humani, won't be correct. ");
         embed.addField("English", query, false);
 
         String indonesian = translate("en", "id", query).toLowerCase(indonesia);
         embed.addField("Indonesian", indonesian, false);
 
-        StringTokenizer tokenizer = new StringTokenizer(indonesian);
+        cipherSteps(indonesian, embed);
+    }
+
+    /**
+     * @param query Text to pass through the Korath letter cipher.
+     * @return The ciphered text. Will need massaging to be usable in game.
+     */
+    public void indokorath(String query, EmbedBuilder embed) throws IOException{
+        embed.setFooter("This tool only aids translation. You must massage the words for readability. Sometimes the cipher will produce obscene or offensive terms. Words with standard translations, like human/Humani, won't be correct. ");
+        embed.addField("Original", query, false);
+        cipherSteps(query, embed);
+    }
+
+    private void cipherSteps(String query, EmbedBuilder embed) throws IOException{
+        char[][] reversed = reverseStrings(query);
+
+        char[][] korath = new char[reversed.length][];
+        applyCipher(reversed, korath, toExile);
+        embed.addField("Exile", join(korath), false);
+
+        applyCipher(reversed, korath, toEfreti);
+        embed.addField("Efreti", join(korath), false);
+    }
+
+    private char[][] reverseStrings(String from) {
+        StringTokenizer tokenizer = new StringTokenizer(from);
         int words = tokenizer.countTokens();
         char[][] reverse = new char[words][];
         for(int i = 0; tokenizer.hasMoreTokens(); i++) {
             char[] chars = tokenizer.nextToken().toCharArray();
-            if(i != 0) {
-                builder.append(' ');
-            }
-            builder.append(chars);
             char swapper;
             int left = 0, right = chars.length - 1;
             for(; left < right && !toExile.containsKey(chars[right]); right--) {}
@@ -58,27 +77,23 @@ public class KorathTranslator extends Translator {
             }
             reverse[i] = chars;
         }
-        embed.addField("Reversed", join(reverse), false);
+        return reverse;
+    }
 
-        char[][] korath = new char[words][];
+    private void applyCipher(char[][] fromStrings, char[][] toStrings, Map<Character, Character> map) {
+        int words = fromStrings.length;
         for(int i = 0; i < words; i++) {
-            char[] from = reverse[i];
-            char[] exile = new char[from.length];
-            for(int j = 0; j < exile.length; j++) {
-                exile[j] = toExile.getOrDefault(from[j], from[j]);
+            char[] from = fromStrings[i];
+            char[] to = toStrings[i];
+            if(to == null) {
+                to = new char[from.length];
+                toStrings[i] = to;
             }
-            korath[i] = exile;
-        }
-        embed.addField("Exile", join(korath), false);
-
-        for(int i = 0; i < words; i++) {
-            char[] from = reverse[i];
-            char[] efreti = korath[i];
-            for(int j = 0; j < efreti.length; j++) {
-                efreti[j] = toEfreti.getOrDefault(from[j], from[j]);
+            for(int j = 0; j < to.length; j++) {
+                to[j] = map.getOrDefault(from[j], from[j]);
             }
+            toStrings[i] = to;
         }
-        embed.addField("Efreti", join(korath), false);
     }
 
     private String join(char[][] words) {
