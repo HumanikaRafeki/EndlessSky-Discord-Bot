@@ -39,7 +39,7 @@ public class James {
     private static Properties cfg = new Properties();
 
     public static Command.Category audio = new Command.Category("Audio");
-    public static Command.Category misc = new Command.Category("Misc");
+    public static Command.Category misc = new Command.Category("Language");
     public static Command.Category info = new Command.Category("Info");
     public static Command.Category creatorTools = new Command.Category("Creator Tools");
     public static Command.Category lookup = new Command.Category("Lookup");
@@ -64,8 +64,8 @@ public class James {
     }
 
     private James(Properties cfg) throws LoginException, InterruptedException, IOException {
-	String prefix = cfg.getProperty("prefix", "-");
-	String owner = cfg.getProperty("owner", "177733454824341505");
+        String prefix = cfg.getProperty("prefix", "-");
+        String owner = cfg.getProperty("owner", "177733454824341505");
         CommandClientBuilder clientBuilder = new CommandClientBuilder()
                 .setPrefix(prefix)
                 .setActivity(net.dv8tion.jda.api.entities.Activity.listening(prefix + "help"))
