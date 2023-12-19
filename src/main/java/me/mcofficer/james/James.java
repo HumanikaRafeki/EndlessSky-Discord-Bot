@@ -32,7 +32,7 @@ import java.util.Properties;
 public class James {
 
     public final static String GITHUB_URL = "https://github.com/HumanikaRafeki/EndlessSky-Discord-Bot/";
-    public final static String GITHUB_RAW_URL = "https://raw.githubusercontent.com/HumanikaRafeki/EndlessSky-Discord-Bot/master/";
+    public final static String GITHUB_RAW_URL = "https://raw.githubusercontent.com/EndlessSkyCommunity/EndlessSky-Discord-Bot/master/";
     public final static String ES_GITHUB_URL = "https://github.com/endless-sky/endless-sky/";
 
     public final static EventWaiter eventWaiter = new EventWaiter();
@@ -44,7 +44,6 @@ public class James {
     public static Command.Category info = new Command.Category("Info");
     public static Command.Category creatorTools = new Command.Category("Creator Tools");
     public static Command.Category lookup = new Command.Category("Lookup");
-    public static Command.Category moderation = new Command.Category("Moderation");
 
     private Logger log = LoggerFactory.getLogger(James.class);
 
@@ -66,11 +65,11 @@ public class James {
 
     private James(Properties cfg) throws LoginException, InterruptedException, IOException {
         String prefix = cfg.getProperty("prefix", "-");
-        String owner = cfg.getProperty("owner", "177733454824341505");
+        String owner = cfg.getProperty("owner");
         CommandClientBuilder clientBuilder = new CommandClientBuilder()
                 .setPrefix(prefix)
                 .setActivity(net.dv8tion.jda.api.entities.Activity.listening(prefix + "help"))
-                .setOwnerId(owner); // yep, that's me
+                .setOwnerId(owner);
         addCommands(clientBuilder, cfg.getProperty("github"));
 
         clientBuilder.setHelpConsumer(new Help(clientBuilder.build())); // this HAS to be done after adding all Commands!
