@@ -68,9 +68,9 @@ public class Help implements Consumer<CommandEvent> {
                 }
                 sb.append("\n");
             }
-            embedBuilder.addField(category.getName(), sb.toString(), true);
+            embedBuilder.addField(category.getName(), sb.toString(), false);
         }
-
+        embedBuilder.addField("More Help", "For details on an command:\n`"+prefix+"help "+prefix+"command`", false);
         embedBuilder.setTitle("EndlessSky-Discord-Bot", James.GITHUB_URL);
 
         return embedBuilder;
