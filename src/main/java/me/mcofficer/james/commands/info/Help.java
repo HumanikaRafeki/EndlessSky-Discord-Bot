@@ -29,7 +29,7 @@ public class Help implements Consumer<CommandEvent> {
                     .setColor(e.getGuild().getSelfMember().getColor())
                     .build());
         else {
-            String args = e.getArgs().startsWith("-") ? e.getArgs().substring(1) : e.getArgs();
+            String args = e.getArgs().startsWith(prefix) ? e.getArgs().substring(1) : e.getArgs();
             // TODO: Check for aliases
             for (Command c : commands)
                 if (c.getName().equalsIgnoreCase(args)) {

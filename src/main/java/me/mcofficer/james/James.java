@@ -9,15 +9,13 @@ import me.mcofficer.james.audio.Playlists;
 import me.mcofficer.james.commands.*;
 import me.mcofficer.james.commands.audio.*;
 import me.mcofficer.james.commands.creatortools.*;
-import me.mcofficer.james.commands.misc.Birb;
-import me.mcofficer.james.commands.misc.Cat;
-import me.mcofficer.james.commands.misc.Dog;
 import me.mcofficer.james.commands.info.*;
 import me.mcofficer.james.commands.lookup.*;
 import me.mcofficer.james.commands.misc.Translate;
-import me.mcofficer.james.commands.moderation.*;
+import me.mcofficer.james.commands.misc.Korath;
 import me.mcofficer.james.tools.Lookups;
 import me.mcofficer.james.tools.Translator;
+import me.mcofficer.james.tools.KorathTranslator;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -69,10 +67,12 @@ public class James {
     }
 
     private James(Properties cfg) throws LoginException, InterruptedException, IOException {
+	String prefix = cfg.getProperty("prefix", "-");
+	String owner = cfg.getProperty("owner", "177733454824341505");
         CommandClientBuilder clientBuilder = new CommandClientBuilder()
-                .setPrefix("-")
-                .setActivity(net.dv8tion.jda.api.entities.Activity.listening("-help"))
-                .setOwnerId("177733454824341505"); // yep, that's me
+                .setPrefix(prefix)
+                .setActivity(net.dv8tion.jda.api.entities.Activity.listening(prefix + "help"))
+                .setOwnerId(owner); // yep, that's me
         addCommands(clientBuilder, cfg.getProperty("github"));
 
         clientBuilder.setHelpConsumer(new Help(clientBuilder.build())); // this HAS to be done after adding all Commands!
@@ -114,11 +114,9 @@ public class James {
                 new Play(audio), new Stop(audio), new Loop(audio), new Skip(audio), new Remove(audio), new Shuffle(audio), new Current(audio),
                 new Pause(audio), new Unpause(audio), new Queue(audio), new Playlist(audio, playlists),
                 new SwizzleImage(), new Template(), new CRConvert(),
-                new Cat(), new Dog(), new Birb(), new Translate(new Translator(okHttpClient)),
+                new Translate(new Translator(okHttpClient)), new Korath(new KorathTranslator(okHttpClient)),
                 new Info(githubToken), new Ping(),
-                new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups),
-                new Purge(), new Optin(optinRoles, cfg.getProperty("timeoutRole")), new Optout(optinRoles),
-                new Timeout(cfg.getProperty("timeoutRole")), new Activity(ontopicCategories), new Move()
+                new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups)
         );
     }
 }
