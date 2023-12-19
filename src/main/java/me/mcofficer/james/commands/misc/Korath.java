@@ -28,7 +28,7 @@ public class Korath extends Command {
         try {
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setTitle("Korath Encoding");
-	    translator.korath(event.getArgs(), embedBuilder);
+            translator.korath(event.getArgs(), embedBuilder);
             event.reply(embedBuilder.build());
         }
         catch (IOException e) {
