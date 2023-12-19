@@ -15,9 +15,11 @@ public class Ping extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
+        float ping = event.getJDA().getGatewayPing();
+        long BPM = Math.round(60.0 / Math.max(ping / 1000, 1e-9));
         event.reply(new EmbedBuilder()
                 .setTitle("EndlessSky-Discord-Bot", James.GITHUB_URL)
-                .setDescription("Last Heartbeat took " + event.getJDA().getGatewayPing() + "ms.")
+                .setDescription("Last heartbeat took " + ping + " ms (" + BPM + " BPM).")
                 .setColor(event.getGuild().getSelfMember().getColor())
                 .build()
         );
