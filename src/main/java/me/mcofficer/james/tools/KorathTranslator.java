@@ -45,8 +45,9 @@ public class KorathTranslator extends Translator {
      */
     public void indokorath(String query, EmbedBuilder embed) throws IOException{
         embed.setFooter("This tool only aids translation. You must massage the words for readability. Sometimes the cipher will produce obscene or offensive terms. Words with standard translations, like human/Humani, won't be correct. ");
-        embed.addField("Indonesian", query, false);
-        cipherSteps(query, embed);
+        String indonesian = query.toLowerCase(indonesia);
+        embed.addField("Indonesian", indonesian, false);
+        cipherSteps(indonesian, embed);
     }
 
     private void cipherSteps(String query, EmbedBuilder embed) throws IOException{
