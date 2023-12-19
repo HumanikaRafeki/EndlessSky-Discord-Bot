@@ -4,10 +4,7 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import me.mcofficer.esparser.DataFile;
-import me.mcofficer.james.audio.Audio;
-import me.mcofficer.james.audio.Playlists;
 import me.mcofficer.james.commands.*;
-import me.mcofficer.james.commands.audio.*;
 import me.mcofficer.james.commands.creatortools.*;
 import me.mcofficer.james.commands.info.*;
 import me.mcofficer.james.commands.lookup.*;
@@ -103,16 +100,10 @@ public class James {
             log.info("Hdpi image paths fetched successfully.");
         }).start();
 
-        Audio audio = new Audio();
-        Playlists  playlists= new Playlists();
-
         String[] optinRoles = cfg.getProperty("optinRoles").split(",");
         String[] ontopicCategories = cfg.getProperty("ontopicCategories").split(",");
 
         builder.addCommands(
-                new Eval(lookups, playlists, cfg),
-                new Play(audio), new Stop(audio), new Loop(audio), new Skip(audio), new Remove(audio), new Shuffle(audio), new Current(audio),
-                new Pause(audio), new Unpause(audio), new Queue(audio), new Playlist(audio, playlists),
                 new SwizzleImage(), new Template(), new CRConvert(),
                 new Translate(new Translator(okHttpClient)), new Korath(new KorathTranslator(okHttpClient)),
                 new Info(githubToken), new Ping(),
