@@ -33,8 +33,8 @@ import java.util.Properties;
 
 public class James {
 
-    public final static String GITHUB_URL = "https://github.com/EndlessSkyCommunity/EndlessSky-Discord-Bot/";
-    public final static String GITHUB_RAW_URL = "https://raw.githubusercontent.com/EndlessSkyCommunity/EndlessSky-Discord-Bot/master/";
+    public final static String GITHUB_URL = "https://github.com/HumanikaRafeki/EndlessSky-Discord-Bot/";
+    public final static String GITHUB_RAW_URL = "https://raw.githubusercontent.com/HumanikaRafeki/EndlessSky-Discord-Bot/master/";
     public final static String ES_GITHUB_URL = "https://github.com/endless-sky/endless-sky/";
 
     public final static EventWaiter eventWaiter = new EventWaiter();

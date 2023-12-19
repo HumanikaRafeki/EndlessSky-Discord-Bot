@@ -45,7 +45,7 @@ public class Info extends Command {
     private void getInfo(String githubToken) {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "token "+ githubToken);
-        JSONObject latest = new JSONArray(Util.getContentFromUrl("https://api.github.com/repos/EndlessSkyCommunity/EndlessSky-Discord-Bot/commits", headers))
+        JSONObject latest = new JSONArray(Util.getContentFromUrl("https://api.github.com/repos/HumanikaRafeki/EndlessSky-Discord-Bot/commits", headers))
                 .getJSONObject(0);
         commit = String.format("[%s](%s): %s", latest.getString("sha").substring(0, 7), latest.getString("html_url"),
                 latest.getJSONObject("commit").getString("message"));
