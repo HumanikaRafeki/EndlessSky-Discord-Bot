@@ -1,0 +1,7 @@
+# Bot token
+token: 
+# Github token for reading repositories
+github: 
+# Discord ID of bot admin
+owner:
+
