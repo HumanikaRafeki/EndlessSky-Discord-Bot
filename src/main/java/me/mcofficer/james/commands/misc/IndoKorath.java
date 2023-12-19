@@ -23,6 +23,7 @@ public class IndoKorath extends Korath {
 
     @Override
     protected void runTranslator(String query, EmbedBuilder builder) throws IOException {
+        builder.setTitle("Korath Cipher");
         translator.indokorath(query, builder);
     }
 }

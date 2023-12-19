@@ -26,8 +26,7 @@ public class Korath extends Command {
     @Override
     protected void execute(CommandEvent event) {
         try {
-            EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setTitle("Korath Encoding");
+            EmbedBuilder embedBuilder = new EmbedBuilder();
             runTranslator(event.getArgs(), embedBuilder);
             event.reply(embedBuilder.build());
         }
@@ -39,6 +38,7 @@ public class Korath extends Command {
     }
 
     protected void runTranslator(String query, EmbedBuilder builder) throws IOException {
+        builder.setTitle("Korath Encoding");
         translator.korath(query, builder);
     }
 }
