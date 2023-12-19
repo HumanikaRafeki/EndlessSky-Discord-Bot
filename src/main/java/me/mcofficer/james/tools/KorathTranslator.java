@@ -49,6 +49,8 @@ public class KorathTranslator extends Translator {
 	    builder.append(chars);
 	    char swapper;
 	    int left = 0, right = chars.length - 1;
+	    for(; left < right && !toExile.containsKey(chars[right]); right--) {}
+	    for(; left < right && !toExile.containsKey(chars[left]); left++) {}
 	    for(; left < right; left++, right--) {
 		swapper = chars[left];
 		chars[left] = chars[right];
@@ -63,7 +65,7 @@ public class KorathTranslator extends Translator {
 	    char[] from = reverse[i];
 	    char[] exile = new char[from.length];
 	    for(int j = 0; j < exile.length; j++) {
-		exile[j] = toExile.getOrDefault(from[j], ' ');
+		exile[j] = toExile.getOrDefault(from[j], from[j]);
 	    }
 	    korath[i] = exile;
 	}
@@ -73,7 +75,7 @@ public class KorathTranslator extends Translator {
 	    char[] from = reverse[i];
 	    char[] efreti = korath[i];
 	    for(int j = 0; j < efreti.length; j++) {
-		efreti[j] = toEfreti.getOrDefault(from[j], ' ');
+		efreti[j] = toEfreti.getOrDefault(from[j], from[j]);
 	    }
 	}
 	embed.addField("Efreti", join(korath), false);
