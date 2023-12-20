@@ -52,7 +52,7 @@ public class KorathTranslator extends Translator {
     }
 
     private String cleanQuery(String query) {
-        return query.replaceAll("\\R+", "\n").replaceAll("[ \t]+", " ").replaceAll("<[^>]*>", "");
+        return query.replaceAll("\\R+", "\n").replaceAll("[ \t]+", " ").replaceAll("<[^>\\p{Space}]*>", "");
     }
 
     private void cipherSteps(String query, EmbedBuilder embed) throws IOException{
