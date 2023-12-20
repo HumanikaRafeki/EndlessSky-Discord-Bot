@@ -10,6 +10,7 @@ import me.mcofficer.james.commands.info.*;
 import me.mcofficer.james.commands.lookup.*;
 import me.mcofficer.james.commands.misc.Translate;
 import me.mcofficer.james.commands.misc.Korath;
+import me.mcofficer.james.commands.misc.Parse;
 import me.mcofficer.james.commands.misc.IndoKorath;
 import me.mcofficer.james.tools.Lookups;
 import me.mcofficer.james.tools.Translator;
@@ -108,6 +109,7 @@ public class James {
                 new Translate(new Translator(okHttpClient)),
                 new Korath(new KorathTranslator(okHttpClient)),
                 new IndoKorath(new KorathTranslator(okHttpClient)),
+                new Parse(),
                 new Info(githubToken), new Ping(),
                 new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups)
         );

@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:4.2.0_172'
+    implementation 'net.dv8tion:JDA:4.4.1_353'
     implementation 'com.jagrosh:jda-utilities:3.0.5'
     implementation 'com.github.mpkorstanje:simmetrics-core:4.1.1'
 
