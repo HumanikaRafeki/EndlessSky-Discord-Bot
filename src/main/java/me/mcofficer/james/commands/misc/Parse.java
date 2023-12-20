@@ -3,6 +3,8 @@ package me.mcofficer.james.commands.misc;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import me.mcofficer.james.James;
+import me.mcofficer.james.phrases.PhraseDatabase;
+import me.mcofficer.james.phrases.PhraseExpander;
 import me.mcofficer.esparser.DataFile;
 import me.mcofficer.esparser.DataNode;
 import me.mcofficer.esparser.DataNodeStringLogger;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.HashMap;
 
 public class Parse extends Command {
 
@@ -33,9 +36,64 @@ public class Parse extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
+        String phrase = event.getArgs();
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
+
+        String attachmentErrors = validateAttachmentList(attachments);
+        if(attachmentErrors.length() > 0)
+            event.reply(attachmentErrors);
+
+        EmbedBuilder embed = new EmbedBuilder();
+        PhraseDatabase phrases = new PhraseDatabase();
+        DataNodeStringLogger logger = new DataNodeStringLogger();
+
+        for(Message.Attachment a : attachments) {
+            try {
+                DataFile file = readAttachment(a, logger);
+                if(file == null) {
+                    embed.addField(a.getFileName(), ": could not read", false);
+                    continue;
+                }
+                phrases.addPhrases(file.getNodes());
+                logger.stopLogging();
+                logger.freeResources();
+            } catch(IOException exc) {
+                embed.addField(a.getFileName(), ": could not read: " + exc, false);
+            } catch(ExecutionException ee) {
+                embed.addField(a.getFileName(), ": could not read: " + ee, false);
+            } catch(InterruptedException iexc) {
+                embed.addField(a.getFileName(), ": operation was interrupted", false);
+            } catch(TimeoutException texc) {
+                embed.addField(a.getFileName(), ": timed out waiting for Discord to provide the file", false);
+            }
+        }
+
+        String parserErrors = logger.toString();
+        if(parserErrors.length() > 1000)
+            parserErrors = parserErrors.substring(0,1000);
+        if(parserErrors.length() > 0)
+            embed.addField("Parser Errors", parserErrors, false);
+
+        StringBuilder builder = new StringBuilder();
+        int phraseIndex = 0;
+        for(String phraseName : phrases.getExpanders().keySet()) {
+            phraseIndex += 1;
+            if(phraseIndex > 20)
+                break;
+            builder.append(phraseName).append('\n');
+        }
+        embed.addField("Phrases", builder.toString(), false);
+        embed.setTitle("DataFile Result");
+        String expanded = phrases.expand(phrase);
+        if(expanded == null || expanded.length() < 1)
+            expanded = "Could not expand \""+phrase+"\"";
+        embed.setFooter(expanded);
+        event.reply(embed.build());
+    }
+
+    private String validateAttachmentList(List<Message.Attachment> attachments) {
         int acceptable = 0;
-        StringBuffer errors = new StringBuffer();
+        StringBuilder errors = new StringBuilder();
         errors.append(String.format("Please attach one or more text files. They must be less than %.1f kiB total.\n", MAX_TOTAL_FILE_SIZE/1024.0));
         int start = errors.length();
         long size = 0;
@@ -50,29 +108,10 @@ public class Parse extends Command {
                   .append(String.format("%.1f", size/1024.0)).append(" > ")
                   .append(String.format("%.1f", MAX_TOTAL_FILE_SIZE/1024.0)).append("kiB");
         
-        if(errors.length() > start || acceptable < attachments.size()) {
-            event.reply(errors.toString());
-            return;
-        }
+        if(errors.length() > start || acceptable < attachments.size())
+            return errors.toString();
 
-        EmbedBuilder embed = new EmbedBuilder();
-
-        for(Message.Attachment a : attachments) {
-            try {
-                if(!readAttachment(a, embed))
-                    embed.addField(a.getFileName(), ": could not read", false);
-            } catch(IOException exc) {
-                embed.addField(a.getFileName(), ": could not read: " + exc, false);
-            } catch(ExecutionException ee) {
-                embed.addField(a.getFileName(), ": could not read: " + ee, false);
-            } catch(InterruptedException iexc) {
-                embed.addField(a.getFileName(), ": operation was interrupted", false);
-            } catch(TimeoutException texc) {
-                embed.addField(a.getFileName(), ": timed out waiting for Discord to provide the file", false);
-            }
-        }
-        embed.setTitle("DataFile Result");
-        event.reply(embed.build());
+        return "";
     }
 
     private boolean validateAttachment(Message.Attachment a, StringBuilder errors) {
@@ -114,7 +153,7 @@ public class Parse extends Command {
         return b;
     }
 
-    private boolean readAttachment(Message.Attachment a, EmbedBuilder embed) throws IOException, InterruptedException, ExecutionException, TimeoutException {
+    private DataFile readAttachment(Message.Attachment a, DataNodeStringLogger logger) throws IOException, InterruptedException, ExecutionException, TimeoutException {
         InputStream stream = null;
         byte[] b = null;
         int fileSize = a.getSize();
@@ -126,31 +165,27 @@ public class Parse extends Command {
                 stream.close();
         }
         if(b == null || b.length < fileSize)
-            return false;
+            return null;
 
         String result = new String(b, StandardCharsets.UTF_8);
         String[] lines = result.split("(?<=\\R)");
-        List<String> lineList = Arrays.asList(lines);
 
-        DataNodeStringLogger logger = new DataNodeStringLogger();
-        StringBuilder builder = new StringBuilder();
+        // StringBuilder builder = new StringBuilder();
 
-        DataFile file = new DataFile(lineList, logger);
-        String logged = logger.toString();
+        DataFile file = new DataFile(Arrays.asList(lines), logger);
+        // String logged = logger.toString();
 
-        builder.append("Total nodes: ").append(file.getNodes().size()).append('\n');
+        // builder.append("Total nodes: ").append(file.getNodes().size()).append('\n');
 
-        int i = 0;
-        for(DataNode node : file.getNodes()) {
-            builder.append("node: ").append(String.join(" ",node.getTokens())).append('\n');
-            i++;
-            if(i >= 20)
-                break;
-        }
-        embed.addField(a.getFileName(), builder.toString(), false);
+        // int i = 0;
+        // for(DataNode node : file.getNodes()) {
+        //     builder.append("node: ").append(String.join(" ",node.getTokens())).append('\n');
+        //     i++;
+        //     if(i >= 20)
+        //         break;
+        // }
+        // embed.addField(a.getFileName(), builder.toString(), false);
 
-        logger.stopLogging();
-        logger.freeResources();
-        return true;
+        return file;
     }
 }
