@@ -27,7 +27,11 @@ public class Korath extends Command {
     protected void execute(CommandEvent event) {
         try {
             EmbedBuilder embedBuilder = new EmbedBuilder();
-            runTranslator(event.getArgs(), embedBuilder);
+            String query = event.getArgs();
+            if(query.length() > 1000)
+                embedBuilder.setDescription("Text is too long. Maximum length is 1000 characters.");
+            else
+                runTranslator(query, embedBuilder);
             event.reply(embedBuilder.build());
         }
         catch (IOException e) {
