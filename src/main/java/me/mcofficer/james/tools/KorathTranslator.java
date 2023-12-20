@@ -31,9 +31,10 @@ public class KorathTranslator extends Translator {
      */
     public void korath(String query, EmbedBuilder embed) throws IOException{
         embed.setFooter("This tool only aids translation. You must massage the words for readability. Sometimes the cipher will produce obscene or offensive terms. Words with standard translations, like human/Humani, won't be correct. ");
-        embed.addField("English", query, false);
+        String clean = cleanQuery(query);
+        embed.addField("English", clean, false);
 
-        String indonesian = translate("en", "id", query).toLowerCase(indonesia);
+        String indonesian = translate("en", "id", clean).toLowerCase(indonesia);
         embed.addField("Indonesian", indonesian, false);
 
         cipherSteps(indonesian, embed);
@@ -45,9 +46,13 @@ public class KorathTranslator extends Translator {
      */
     public void indokorath(String query, EmbedBuilder embed) throws IOException{
         embed.setFooter("This tool only aids translation. You must massage the words for readability. Sometimes the cipher will produce obscene or offensive terms. Words with standard translations, like human/Humani, won't be correct. ");
-        String indonesian = query.toLowerCase(indonesia);
+        String indonesian = cleanQuery(query).toLowerCase(indonesia);
         embed.addField("Indonesian", indonesian, false);
         cipherSteps(indonesian, embed);
+    }
+
+    private String cleanQuery(String query) {
+        return query.replaceAll("\\R+", "\n").replaceAll("[ \t]+", " ").replaceAll("<[^>]*>", "");
     }
 
     private void cipherSteps(String query, EmbedBuilder embed) throws IOException{
