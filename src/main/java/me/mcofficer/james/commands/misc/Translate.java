@@ -30,9 +30,12 @@ public class Translate extends Command {
         String query = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 
         try {
-            EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setTitle("Translation requested by " + event.getMember().getEffectiveName())
-                    .setDescription(translator.translate(null, target, query));
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            embedBuilder.setTitle("Translation requested by " + event.getMember().getEffectiveName());
+            if(query.length() > 1000)
+                embedBuilder.setDescription("Text is too long. Maximum length is 1000 characters.");
+            else
+                embedBuilder.setDescription(translator.translate(null, target, query));
             event.reply(embedBuilder.build());
         }
         catch (IOException e) {
