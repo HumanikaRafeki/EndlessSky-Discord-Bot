@@ -6,7 +6,7 @@ import java.util.Set;
 
 import me.mcofficer.esparser.DataNode;
 
-class Phrase implements PhraseExpander {
+public class Phrase implements PhraseExpander {
 
     private ArrayList<PhraseExpander> expanders;
     private String name;
@@ -18,38 +18,38 @@ class Phrase implements PhraseExpander {
             name = node.getTokens().get(1);
         else
             name = "NO NAME";
-        // for(DataNode child : node.getChildren()) {
-        //     if(child.size() < 1)
-        //         continue;
-        //     String nodeType = child.getTokens()[0];
-        //     if(nodeType.equals("phrase"))
-        //         expanders.append(new PhraseList(child));
-        //     else if(nodeType.equals("word"))
-        //         expanders.append(new WordList(child));
-        //     else if(nodeType.equals("replace"))
-        //         expanders.append(new Replacements(child));
-        // }
+        for(DataNode child : node.getChildren()) {
+            if(child.size() < 1)
+                continue;
+            String nodeType = child.getTokens().get(0);
+            if(nodeType.equals("word"))
+                expanders.add(new WordList(child));
+            else if(nodeType.equals("phrase"))
+                expanders.add(new PhraseList(child));
+            else if(nodeType.equals("replace"))
+                expanders.add(new Replacements(child));
+        }
     }
 
     public String getName() {
         return name;
     }
 
-    @Override
-    public void addPhrasesTo(PhraseProvider phrases) {
-        if(name.length() > 0)
-            phrases.setExpander(name, this);
-        else
-            phrases.setExpander("UNKNOWN", this);
+    public String expand(PhraseProvider phrases) {
+        StringBuilder result = new StringBuilder();
+        expand(result, phrases, new HashSet<String>());
+        return result.toString();
     }
 
     @Override
     public void expand(StringBuilder result, PhraseProvider phrases, Set<String> touched) {
+        if(touched.contains(name))
+            // Avoid infinite recursion.
+            return;
         touched.add(name);
         try {
-            result.append('[').append(name).append(']');
-            // for(PhraseExpander expander : expanders)
-            //     expander.expand(result, phrases, touched);
+            for(PhraseExpander expander : expanders)
+                expander.expand(result, phrases, touched);
         } finally {
             touched.remove(name);
         }

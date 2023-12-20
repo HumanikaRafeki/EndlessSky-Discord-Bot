@@ -10,24 +10,30 @@ import me.mcofficer.esparser.DataNode;
 
 public class PhraseDatabase implements PhraseProvider {
 
-    HashMap<String, PhraseExpander> expanders;
+    PhraseDatabase parent;
+    HashMap<String, Phrase> expanders;
 
-    public PhraseDatabase() {
-        expanders = new HashMap<String, PhraseExpander>();
+    public PhraseDatabase(PhraseDatabase parent) {
+        expanders = new HashMap<String, Phrase>();
+        this.parent = parent;
     }
 
-    public Map<String, PhraseExpander> getExpanders() {
-        return expanders;
+    public PhraseDatabase() {
+        expanders = new HashMap<String, Phrase>();
+        this.parent = null;
     }
 
     public void addPhrases(ArrayList<DataNode> data) {
         for(DataNode node : data)
-            addPhrase(node);
+            if(node.size() > 1 && node.getTokens().get(0).equals("phrase"))
+                addPhrase(node);
     }
 
     public void addPhrase(DataNode node) {
-        if(node.size() > 1 && node.getTokens().get(0).equals("phrase"))
-            new Phrase(node).addPhrasesTo(this);
+        Phrase phrase = new Phrase(node);
+        String name = phrase.getName();
+        if(name != null && name.length() > 0)
+            expanders.put(name, phrase);
         else
             node.printTrace("not a valid phrase node");
     }
@@ -42,13 +48,17 @@ public class PhraseDatabase implements PhraseProvider {
         return builder.toString();
     }
 
-    @Override
-    public PhraseExpander getExpander(String phrase) {
-        return expanders.getOrDefault(phrase, null);
+    public Phrase get(String phrase) {
+        Phrase got = expanders.getOrDefault(phrase, null);
+        if(got != null)
+            return got;
+        if(parent == null)
+            return null;
+        return parent.get(phrase);
     }
 
     @Override
-    public void setExpander(String phrase, PhraseExpander expander) {
-        expanders.put(phrase, expander);
+    public PhraseExpander getExpander(String phrase) {
+        return get(phrase);
     }
 }

@@ -4,6 +4,7 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import me.mcofficer.esparser.DataFile;
+import me.mcofficer.james.phrases.PhraseDatabase;
 import me.mcofficer.james.commands.*;
 import me.mcofficer.james.commands.creatortools.*;
 import me.mcofficer.james.commands.info.*;
@@ -77,7 +78,6 @@ public class James {
 
         JDA jda = JDABuilder.createDefault(cfg.getProperty("token"))
                 .setChunkingFilter(ChunkingFilter.ALL)
-                .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 .addEventListeners(clientBuilder.build(), eventWaiter)
                 .build()
                 .awaitReady();
@@ -95,6 +95,11 @@ public class James {
         Lookups lookups = new Lookups(okHttpClient, dataFiles, imagePaths);
         log.info("Lookups instantiated");
 
+        log.info("Parsing phrases...");
+        PhraseDatabase phrases = new PhraseDatabase();
+        for(DataFile file : dataFiles)
+            phrases.addPhrases(file.getNodes());
+
         log.info("Starting background thread to fetch hdpi image paths...");
         new Thread(() -> {
             lookups.setImagePaths(Util.get2xImagePaths(imagePaths));
@@ -109,7 +114,7 @@ public class James {
                 new Translate(new Translator(okHttpClient)),
                 new Korath(new KorathTranslator(okHttpClient)),
                 new IndoKorath(new KorathTranslator(okHttpClient)),
-                new Parse(),
+                new Parse(phrases),
                 new Info(githubToken), new Ping(),
                 new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups)
         );

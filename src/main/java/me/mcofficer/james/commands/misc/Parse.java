@@ -4,13 +4,15 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import me.mcofficer.james.James;
 import me.mcofficer.james.phrases.PhraseDatabase;
-import me.mcofficer.james.phrases.PhraseExpander;
+import me.mcofficer.james.phrases.Phrase;
 import me.mcofficer.esparser.DataFile;
 import me.mcofficer.esparser.DataNode;
 import me.mcofficer.esparser.DataNodeStringLogger;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.EmbedBuilder;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
@@ -26,25 +28,88 @@ public class Parse extends Command {
     private static long FILE_TIMEOUT = 30;
     private static int MAX_INDIVIDUAL_FILE_SIZE = 300*1024;
     private static int MAX_TOTAL_FILE_SIZE = 300*1024;
+    private static Pattern REPITITION = Pattern.compile("\\A(\\d+)\\s+");
+    private static int MAX_STRING_LENGTH = 1000;
+    private static int MAX_REPITITIONS = 20;
 
-    public Parse() {
+    private static PhraseDatabase gameDataPhrases = null;
+
+    public Parse(PhraseDatabase gameDataPhrases) {
         name = "parse";
         help = "Parses attached game data files.";
         arguments = "<attached txt files>";
         category = James.misc;
+        this.gameDataPhrases = gameDataPhrases;
     }
 
     @Override
     protected void execute(CommandEvent event) {
-        String phrase = event.getArgs();
-        List<Message.Attachment> attachments = event.getMessage().getAttachments();
-
-        String attachmentErrors = validateAttachmentList(attachments);
-        if(attachmentErrors.length() > 0)
-            event.reply(attachmentErrors);
+        String phrase = event.getArgs().trim().replaceAll("[@#<>|*_ \t]+"," ");
+        int count = 1;
+        Matcher matcher = REPITITION.matcher(phrase);
+        if(matcher.find() && matcher.end() < phrase.length()) {
+            count = Integer.parseInt(matcher.group(1), 10);
+            if(count < 1)
+                count = 1;
+            if(count > MAX_REPITITIONS)
+                count = MAX_REPITITIONS;
+            phrase = phrase.substring(matcher.end());
+        }
 
         EmbedBuilder embed = new EmbedBuilder();
-        PhraseDatabase phrases = new PhraseDatabase();
+	int status = 0;
+        PhraseDatabase phrases = new PhraseDatabase(gameDataPhrases);
+        String expanded = null;
+        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+
+        if(attachments.size() > 0) {
+            String attachmentErrors = validateAttachmentList(attachments);
+            if(attachmentErrors.length() > 0) {
+                embed.addField(null, attachmentErrors, false).setTitle("Invalid Attachments");
+                event.reply(embed.build());
+                return;
+            }
+            status = readPhrasesFromAttachments(attachments, embed, phrases);
+            if(status < 0) {
+                // Thread was interrupted and should exit as soon as possible.
+                System.out.println("thread interrupted");
+                return;
+            }
+        }
+
+        if(status == 0) {
+            expanded = expandPhrases(count, phrases, phrase);
+            if(expanded == null)
+                embed.addField(phrase, "*Phrase not found!*", false);
+            else {
+                String title = phrase;
+                if(count > 1)
+                    title += " x " + count;
+                embed.addField(title, expanded, false);
+            }
+        }
+        event.reply(embed.build());
+    }
+
+    private String expandPhrases(int count, PhraseDatabase phrases, String phrase) {
+        StringBuilder builder = new StringBuilder();
+
+        Phrase gotten = phrases.get(phrase);
+        if(gotten == null)
+            return null;
+
+        for(int repeat = 0; repeat < count && builder.length() < MAX_STRING_LENGTH; repeat++)
+            builder.append(gotten.expand(phrases)).append('\n');
+
+        // "very long string" becomes "very long s..."
+        if(builder.length() > MAX_STRING_LENGTH) {
+            builder.delete(MAX_STRING_LENGTH - 3, builder.length());
+            builder.append("...");
+        }
+        return builder.toString().replaceAll("[@#<>|*_ \t]+"," ");
+    }
+
+    private int readPhrasesFromAttachments(List<Message.Attachment> attachments, EmbedBuilder embed, PhraseDatabase phrases) {
         DataNodeStringLogger logger = new DataNodeStringLogger();
 
         for(Message.Attachment a : attachments) {
@@ -59,12 +124,16 @@ public class Parse extends Command {
                 logger.freeResources();
             } catch(IOException exc) {
                 embed.addField(a.getFileName(), ": could not read: " + exc, false);
+                return 1;
             } catch(ExecutionException ee) {
                 embed.addField(a.getFileName(), ": could not read: " + ee, false);
+                return 1;
             } catch(InterruptedException iexc) {
-                embed.addField(a.getFileName(), ": operation was interrupted", false);
+                // embed.addField(a.getFileName(), ": operation was interrupted", false);
+                return -1;
             } catch(TimeoutException texc) {
                 embed.addField(a.getFileName(), ": timed out waiting for Discord to provide the file", false);
+                return 1;
             }
         }
 
@@ -73,22 +142,7 @@ public class Parse extends Command {
             parserErrors = parserErrors.substring(0,1000);
         if(parserErrors.length() > 0)
             embed.addField("Parser Errors", parserErrors, false);
-
-        StringBuilder builder = new StringBuilder();
-        int phraseIndex = 0;
-        for(String phraseName : phrases.getExpanders().keySet()) {
-            phraseIndex += 1;
-            if(phraseIndex > 20)
-                break;
-            builder.append(phraseName).append('\n');
-        }
-        embed.addField("Phrases", builder.toString(), false);
-        embed.setTitle("DataFile Result");
-        String expanded = phrases.expand(phrase);
-        if(expanded == null || expanded.length() < 1)
-            expanded = "Could not expand \""+phrase+"\"";
-        embed.setFooter(expanded);
-        event.reply(embed.build());
+        return 0;
     }
 
     private String validateAttachmentList(List<Message.Attachment> attachments) {
@@ -170,22 +224,6 @@ public class Parse extends Command {
         String result = new String(b, StandardCharsets.UTF_8);
         String[] lines = result.split("(?<=\\R)");
 
-        // StringBuilder builder = new StringBuilder();
-
-        DataFile file = new DataFile(Arrays.asList(lines), logger);
-        // String logged = logger.toString();
-
-        // builder.append("Total nodes: ").append(file.getNodes().size()).append('\n');
-
-        // int i = 0;
-        // for(DataNode node : file.getNodes()) {
-        //     builder.append("node: ").append(String.join(" ",node.getTokens())).append('\n');
-        //     i++;
-        //     if(i >= 20)
-        //         break;
-        // }
-        // embed.addField(a.getFileName(), builder.toString(), false);
-
-        return file;
+        return new DataFile(Arrays.asList(lines), logger);
     }
 }
