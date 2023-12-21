@@ -9,7 +9,7 @@ import me.mcofficer.esparser.DataNode;
 
 class WordExpander implements PhraseExpander {
 
-    public static Pattern phraseFinder = Pattern.compile("(.*?)[$][{]([^\\}]*)[}]");
+    public static Pattern phraseFinder = Pattern.compile("(.*?)[$][{]([^\\}]*)[}]", Pattern.DOTALL);
     public static int maxAllowedMatches = 30;
 
     private ArrayList<Entry> content;
@@ -45,7 +45,7 @@ class WordExpander implements PhraseExpander {
             if(entry.isPhrase) {
                 PhraseExpander phrase = phrases.getExpander(entry.token);
                 if(phrase == null)
-                    return;
+                    continue;
                 phrase.expand(result, phrases, touched, limits);
             } else
                 limits.appendRemaining(entry.token, result);

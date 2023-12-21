@@ -40,10 +40,12 @@ abstract class Parse extends Command {
 
     protected PhraseDatabase gameDataPhrases;
     protected NewsDatabase gameDataNews;
+    private boolean splitLines;
 
-    public Parse(PhraseDatabase gameDataPhrases, NewsDatabase gameDataNews) {
+    public Parse(PhraseDatabase gameDataPhrases, NewsDatabase gameDataNews, boolean splitLines) {
         this.gameDataPhrases = gameDataPhrases;
         this.gameDataNews = gameDataNews;
+        this.splitLines = splitLines;
     }
 
     abstract protected boolean processInput(int count, PhraseDatabase phrases, NewsDatabase news, String entry, EmbedBuilder embed, PhraseLimits limits);
@@ -74,7 +76,13 @@ abstract class Parse extends Command {
             return;
 
         int linesRemaining = MAX_OUTPUT_LINES;
-        String[] lines = args.split("\\R+");
+        String[] lines;
+        if(splitLines)
+            lines = args.split("\\R+");
+        else {
+            lines = new String[1];
+            lines[0] = args.replace("\\R+", "\n").replace("[ \t]+", " ");
+        }
         if(lines.length > MAX_ENTRIES) {
             embed.addField("Too Many Queries!", "Provide no more than "+MAX_ENTRIES+". You provided "+lines.length+'.', false);
             event.reply(embed.build());

@@ -11,13 +11,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 public class News extends Parse {
 
     public News(PhraseDatabase gameDataPhrases, NewsDatabase gameDataNews) {
-        super(gameDataPhrases, gameDataNews);
-        if(gameDataNews.getNews("coalition civilian expeditions past") == null) {
-            System.out.println("Missing \"coalition civilian expeditions past\" news");
-        }
+        super(gameDataPhrases, gameDataNews, true);
         name = "news";
         help = "Generates news from game data files and attached files.";
-        arguments = "[<count>] name\n    [<count>] name ...\n     [<attached txt files>]";
+        arguments = "[<count>] name\n    [<count>] name ...\n    [<attached txt files>]";
         category = James.misc;
     }
 

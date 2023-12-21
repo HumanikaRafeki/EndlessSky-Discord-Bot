@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 public class Phrases extends Parse {
 
     public Phrases(PhraseDatabase gameDataPhrases, NewsDatabase gameDataNews) {
-        super(gameDataPhrases, gameDataNews);
+        super(gameDataPhrases, gameDataNews, true);
         name = "phrases";
         help = "Generates phrases from game data files and attached files.";
         arguments = "[<count>] name\n    [<count>] name ...\n    <attached txt files>]";

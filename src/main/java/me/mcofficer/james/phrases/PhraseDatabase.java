@@ -1,5 +1,6 @@
 package me.mcofficer.james.phrases;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,14 +39,9 @@ public class PhraseDatabase implements PhraseProvider {
             node.printTrace("not a valid phrase node");
     }
 
-    public String expand(String phrase, PhraseLimits limits) {
-        PhraseExpander expander = getExpander(phrase);
-        if(expander == null)
-            return "";
-        StringBuilder builder = new StringBuilder();
-        Set<String> touched = new HashSet<String>();
-        expander.expand(builder, this, touched, limits);
-        return builder.toString();
+    public void expandText(String text, PhraseLimits limits, StringBuilder result) {
+        WordExpander expander = new WordExpander(text);
+        expander.expand(result, this, new HashSet<String>(), limits);
     }
 
     public Phrase get(String phrase) {

@@ -9,7 +9,7 @@ import me.mcofficer.esparser.DataNode;
 
 public class WordList implements PhraseExpander {
 
-    private static final Pattern phrasePattern = Pattern.compile("[$][{][^\\}]*[}]");
+    private static final Pattern phrasePattern = Pattern.compile("[$][{][^\\}]*[}]", Pattern.DOTALL);
 
     protected ArrayList<Choice> choices;
     private double accumulatedWeight = 1;
