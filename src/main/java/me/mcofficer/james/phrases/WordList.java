@@ -9,7 +9,7 @@ import me.mcofficer.esparser.DataNode;
 
 public class WordList implements PhraseExpander {
 
-    protected static Pattern phrasePattern = Pattern.compile("[$][{][^\\}]*[}]");
+    private static final Pattern phrasePattern = Pattern.compile("[$][{][^\\}]*[}]");
 
     protected ArrayList<Choice> choices;
     private double accumulatedWeight = 1;
@@ -48,26 +48,20 @@ public class WordList implements PhraseExpander {
         else if(choices.size() == 1)
             return choices.get(0);
         double accum = Math.random() * accumulatedWeight;
-        int first = 0, last = choices.size() - 1;
-        Choice chosen = choices.get(last);
+        int first = 0, after = choices.size() - 1;
+        Choice chosen = choices.get(after);
         if(accum >= chosen.accum)
             return chosen;
-        if(accum <= 0)
-            return choices.get(0);
-        while(last > first) {
-            int middle = (first + last + 1) / 2;
+        while(after > first + 1) {
+            int middle = (first + after) / 2;
             chosen = choices.get(middle);
             double middleAccum = chosen.accum;
-            if(middleAccum > accum)
-                last = middle - 1;
+            if(accum < middleAccum)
+                after = middle;
             else
                 first = middle;
         }
-        if(last == first)
-            return chosen;
-        if(first > choices.size())
-            return choices.get(choices.size() - 1);
-        return choices.get(0);
+        return choices.get(first);
     }
 
     protected void accumulateWeights() {
@@ -83,15 +77,12 @@ public class WordList implements PhraseExpander {
     }
 
     protected void addWord(DataNode node, boolean allowPhraseReferences) {
-        ArrayList<String> tokens = node.getTokens();
-        if(tokens.size() == 0)
+        if(node.size() < 1)
             return;
-
         double weight = 1;
         if(node.size() > 1 && node.isNumberAt(1))
-            Double.valueOf(tokens.get(1));
-
-        choices.add(asChoice(weight, tokens.get(0), allowPhraseReferences));
+            weight = Double.valueOf(node.token(1));
+        choices.add(asChoice(weight, node.token(0), allowPhraseReferences));
     }
 
     private Choice asChoice(double weight, String token, boolean allowPhraseReferences) {
