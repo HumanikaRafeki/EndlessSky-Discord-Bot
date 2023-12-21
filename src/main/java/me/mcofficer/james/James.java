@@ -5,6 +5,7 @@ import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import me.mcofficer.esparser.DataFile;
 import me.mcofficer.james.phrases.PhraseDatabase;
+import me.mcofficer.james.phrases.NewsDatabase;
 import me.mcofficer.james.commands.*;
 import me.mcofficer.james.commands.creatortools.*;
 import me.mcofficer.james.commands.info.*;
@@ -100,6 +101,11 @@ public class James {
         for(DataFile file : dataFiles)
             phrases.addPhrases(file.getNodes());
 
+        log.info("Parsing news...");
+        NewsDatabase news = new NewsDatabase();
+        for(DataFile file : dataFiles)
+            news.addNews(file.getNodes());
+
         log.info("Starting background thread to fetch hdpi image paths...");
         new Thread(() -> {
             lookups.setImagePaths(Util.get2xImagePaths(imagePaths));
@@ -114,7 +120,7 @@ public class James {
                 new Translate(new Translator(okHttpClient)),
                 new Korath(new KorathTranslator(okHttpClient)),
                 new IndoKorath(new KorathTranslator(okHttpClient)),
-                new Parse(phrases),
+                new Parse(phrases, news),
                 new Info(githubToken), new Ping(),
                 new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups)
         );

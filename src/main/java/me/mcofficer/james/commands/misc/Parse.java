@@ -4,7 +4,9 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import me.mcofficer.james.James;
 import me.mcofficer.james.phrases.PhraseDatabase;
+import me.mcofficer.james.phrases.NewsDatabase;
 import me.mcofficer.james.phrases.Phrase;
+import me.mcofficer.james.phrases.PhraseLimits;
 import me.mcofficer.esparser.DataFile;
 import me.mcofficer.esparser.DataNode;
 import me.mcofficer.esparser.DataNodeStringLogger;
@@ -30,68 +32,104 @@ public class Parse extends Command {
     private static int MAX_TOTAL_FILE_SIZE = 300*1024;
     private static Pattern REPITITION = Pattern.compile("\\A(\\d+)\\s+");
     private static int MAX_STRING_LENGTH = 1000;
+    private static int MAX_ENTRIES = 10;
     private static int MAX_REPITITIONS = 20;
+    private static int MAX_OUTPUT_LINES = 50;
+    private static int MAX_PHRASE_BUFFER_SIZE = 10000;
+    private static int MAX_PHRASE_RECURSION_DEPTH = 7;
 
     private static PhraseDatabase gameDataPhrases = null;
+    private static NewsDatabase gameDataNews = null;
 
-    public Parse(PhraseDatabase gameDataPhrases) {
+    public Parse(PhraseDatabase gameDataPhrases, NewsDatabase gameDataNews) {
         name = "parse";
         help = "Parses attached game data files.";
         arguments = "<attached txt files>";
         category = James.misc;
         this.gameDataPhrases = gameDataPhrases;
+        this.gameDataNews = gameDataNews;
     }
 
     @Override
     protected void execute(CommandEvent event) {
-        String phrase = event.getArgs().trim().replaceAll("[@#<>|*_ \t]+"," ");
-        int count = 1;
-        Matcher matcher = REPITITION.matcher(phrase);
-        if(matcher.find() && matcher.end() < phrase.length()) {
-            count = Integer.parseInt(matcher.group(1), 10);
-            if(count < 1)
-                count = 1;
-            if(count > MAX_REPITITIONS)
-                count = MAX_REPITITIONS;
-            phrase = phrase.substring(matcher.end());
-        }
+        String args = event.getArgs().trim(); // .replaceAll("[@#<>|*_ \t]+"," ");
 
         EmbedBuilder embed = new EmbedBuilder();
-	int status = 0;
         PhraseDatabase phrases = new PhraseDatabase(gameDataPhrases);
-        String expanded = null;
-        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+        NewsDatabase news = new NewsDatabase();
+        PhraseLimits limits = new PhraseLimits(MAX_PHRASE_BUFFER_SIZE, MAX_PHRASE_RECURSION_DEPTH);
 
+        int status = readAttachments(event.getMessage().getAttachments(), phrases, news, embed, limits);
+        if(status > 0)
+            event.reply(embed.build());
+        if(status != 0)
+            return;
+
+        int linesRemaining = MAX_OUTPUT_LINES;
+        String[] lines = args.split("\\R+");
+        if(lines.length > MAX_ENTRIES) {
+            embed.addField("Too Many Queries!", "Provide no more than "+MAX_ENTRIES+". You provided "+lines.length+'.', false);
+            event.reply(embed.build());
+            return;
+        }
+        for(String line : lines) {
+            String entry = line.strip().replace("\\s+"," ");
+            Matcher matcher = REPITITION.matcher(entry);
+            int count = 1;
+            if(matcher.find() && matcher.end() < entry.length()) {
+                count = Integer.parseInt(matcher.group(1), 10);
+                if(count < 1)
+                    count = 1;
+                if(count > MAX_REPITITIONS)
+                    count = MAX_REPITITIONS;
+                if(count > linesRemaining)
+                    count = linesRemaining;
+                entry = entry.substring(matcher.end());
+            }
+            if(!processInput(count, phrases, news, entry, embed, limits))
+                break;
+            linesRemaining -= count;
+        }
+        event.reply(embed.build());
+    }
+
+    private boolean processInput(int count, PhraseDatabase phrases, NewsDatabase news, String entry, EmbedBuilder embed, PhraseLimits limits) {
+        String expanded = expandPhrases(count, phrases, entry, limits);
+        if(count < 1) {
+            embed.addField("Phrase \"" + entry + '"', "*Too many inputs! Use fewer phrases or repititions.*", false);
+            return false;
+        }
+        if(expanded == null)
+            embed.addField("Phrase \"" + entry + '"', "*Phrase not found!*", false);
+        else {
+            String title = "Phrase \"" + entry + '"';
+            if(count > 1)
+                title += " Repeated " + count + " Times";
+            embed.addField(title, "`" + expanded.replace("`","'") + "`", false);
+        }
+        return true;
+    }
+
+    private int readAttachments(List<Message.Attachment> attachments, PhraseDatabase phrases, NewsDatabase news, EmbedBuilder embed, PhraseLimits limits) {
+        String expanded = null;
+        int status = 0;
         if(attachments.size() > 0) {
             String attachmentErrors = validateAttachmentList(attachments);
             if(attachmentErrors.length() > 0) {
                 embed.addField(null, attachmentErrors, false).setTitle("Invalid Attachments");
-                event.reply(embed.build());
-                return;
+                return 1;
             }
             status = readPhrasesFromAttachments(attachments, embed, phrases);
             if(status < 0) {
                 // Thread was interrupted and should exit as soon as possible.
                 System.out.println("thread interrupted");
-                return;
+                return -1;
             }
         }
-
-        if(status == 0) {
-            expanded = expandPhrases(count, phrases, phrase);
-            if(expanded == null)
-                embed.addField(phrase, "*Phrase not found!*", false);
-            else {
-                String title = phrase;
-                if(count > 1)
-                    title += " x " + count;
-                embed.addField(title, expanded, false);
-            }
-        }
-        event.reply(embed.build());
+        return status;
     }
 
-    private String expandPhrases(int count, PhraseDatabase phrases, String phrase) {
+    private String expandPhrases(int count, PhraseDatabase phrases, String phrase, PhraseLimits limits) {
         StringBuilder builder = new StringBuilder();
 
         Phrase gotten = phrases.get(phrase);
@@ -99,7 +137,7 @@ public class Parse extends Command {
             return null;
 
         for(int repeat = 0; repeat < count && builder.length() < MAX_STRING_LENGTH; repeat++)
-            builder.append(gotten.expand(phrases)).append('\n');
+            builder.append(gotten.expand(phrases, limits)).append('\n');
 
         // "very long string" becomes "very long s..."
         if(builder.length() > MAX_STRING_LENGTH) {

@@ -22,7 +22,7 @@ class Replacements implements PhraseExpander {
     }
 
     @Override
-    public void expand(StringBuilder result, PhraseProvider phrases, Set<String> touched) {
+    public void expand(StringBuilder result, PhraseProvider phrases, Set<String> touched, PhraseLimits limits) {
         for(Map.Entry<String, String> entry : toReplace.entrySet()) {
             String key = entry.getKey();
             int keyLen = key.length();
@@ -35,8 +35,12 @@ class Replacements implements PhraseExpander {
                 int next = result.indexOf(key, point);
                 if(next < point)
                     break;
-                result.replace(next, next + keyLen, value);
-                point = next + valueLen;
+                int change = valueLen - keyLen;
+                if(change > 0 && limits.canExpandBy(change, result)) {
+                    result.replace(next, next + keyLen, value);
+                    point = next + valueLen;
+                } else
+                    point = next + keyLen;
             }
         }
     }

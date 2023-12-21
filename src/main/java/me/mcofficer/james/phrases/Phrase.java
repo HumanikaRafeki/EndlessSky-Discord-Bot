@@ -17,7 +17,7 @@ public class Phrase implements PhraseExpander {
         if(node.size() > 1)
             name = node.getTokens().get(1);
         else
-            name = "NO NAME";
+            name = "";
         for(DataNode child : node.getChildren()) {
             if(child.size() < 1)
                 continue;
@@ -35,23 +35,29 @@ public class Phrase implements PhraseExpander {
         return name;
     }
 
-    public String expand(PhraseProvider phrases) {
+    public String expand(PhraseProvider phrases, PhraseLimits limits) {
         StringBuilder result = new StringBuilder();
-        expand(result, phrases, new HashSet<String>());
+        expand(result, phrases, new HashSet<String>(), limits);
         return result.toString();
     }
 
     @Override
-    public void expand(StringBuilder result, PhraseProvider phrases, Set<String> touched) {
-        if(touched.contains(name))
-            // Avoid infinite recursion.
-            return;
-        touched.add(name);
+    public void expand(StringBuilder result, PhraseProvider phrases, Set<String> touched, PhraseLimits limits) {
+        boolean haveName = name != null && name.length() > 0;
+        if(haveName) {
+            if(touched.contains(name))
+                // Avoid infinite recursion.
+                return;
+            if(!limits.canRecurse(touched.size()))
+                return;
+            touched.add(name);
+        }
         try {
             for(PhraseExpander expander : expanders)
-                expander.expand(result, phrases, touched);
+                expander.expand(result, phrases, touched, limits);
         } finally {
-            touched.remove(name);
+            if(haveName)
+                touched.remove(name);
         }
     }
 };

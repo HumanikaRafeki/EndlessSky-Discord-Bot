@@ -9,7 +9,7 @@ import me.mcofficer.esparser.DataNode;
 
 public class WordList implements PhraseExpander {
 
-    protected static Pattern phrasePattern = Pattern.compile("\\$\\{[^}]*\\}");
+    protected static Pattern phrasePattern = Pattern.compile("[$][{][^\\}]*[}]");
 
     protected ArrayList<Choice> choices;
     private double accumulatedWeight = 1;
@@ -27,7 +27,7 @@ public class WordList implements PhraseExpander {
     }
 
     @Override
-    public void expand(StringBuilder result, PhraseProvider phrases, Set<String> touched) {
+    public void expand(StringBuilder result, PhraseProvider phrases, Set<String> touched, PhraseLimits limits) {
         if(choices.size() < 1)
             return;
 
@@ -36,9 +36,10 @@ public class WordList implements PhraseExpander {
         if(chosen == null)
             return;
         else if(chosen.expander != null)
-            chosen.expander.expand(result, phrases, touched);
-        else if(chosen.word != null)
-            result.append(chosen.word);
+            chosen.expander.expand(result, phrases, touched, limits);
+        else if(chosen.word != null) {
+            limits.appendRemaining(chosen.word, result);
+        }
     }
 
     protected Choice randomChoice() {
@@ -94,9 +95,9 @@ public class WordList implements PhraseExpander {
     }
 
     private Choice asChoice(double weight, String token, boolean allowPhraseReferences) {
-        // if(allowPhraseReferences && phraseMatcher.matcher(token).matches())
-        //     return new Choice(weight, null, new WordExpander(token));
-        // else
+        if(allowPhraseReferences && token.indexOf("${") >= 0)
+            return new Choice(weight, null, new WordExpander(token));
+        else
             return new Choice(weight, token, null);
     }
 }

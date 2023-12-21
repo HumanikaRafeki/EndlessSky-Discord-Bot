@@ -10,7 +10,7 @@ class PhraseList extends WordList {
     }
 
     @Override
-    public void expand(StringBuilder result, PhraseProvider phrases, Set<String> touched) {
+    public void expand(StringBuilder result, PhraseProvider phrases, Set<String> touched, PhraseLimits limits) {
         if(choices.size() < 1)
             return;
 
@@ -18,6 +18,6 @@ class PhraseList extends WordList {
         PhraseExpander expander = phrases.getExpander(chosen.word);
         if(expander == null)
             return;
-        expander.expand(result, phrases, touched);
+        expander.expand(result, phrases, touched, limits);
     }
 };

@@ -38,13 +38,13 @@ public class PhraseDatabase implements PhraseProvider {
             node.printTrace("not a valid phrase node");
     }
 
-    public String expand(String phrase) {
+    public String expand(String phrase, PhraseLimits limits) {
         PhraseExpander expander = getExpander(phrase);
         if(expander == null)
             return "";
         StringBuilder builder = new StringBuilder();
         Set<String> touched = new HashSet<String>();
-        expander.expand(builder, this, touched);
+        expander.expand(builder, this, touched, limits);
         return builder.toString();
     }
 
