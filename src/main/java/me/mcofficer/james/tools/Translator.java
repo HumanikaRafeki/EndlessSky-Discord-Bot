@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import javax.annotation.Nullable;
 import java.io.IOException;
 
-public class Translator {
+abstract class Translator {
 
     private OkHttpClient okHttpClient = new OkHttpClient();
 

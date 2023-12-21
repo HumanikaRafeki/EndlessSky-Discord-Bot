@@ -10,14 +10,13 @@ import me.mcofficer.james.commands.*;
 import me.mcofficer.james.commands.creatortools.*;
 import me.mcofficer.james.commands.info.*;
 import me.mcofficer.james.commands.lookup.*;
-import me.mcofficer.james.commands.misc.Translate;
 import me.mcofficer.james.commands.misc.Korath;
 import me.mcofficer.james.commands.misc.Phrases;
 import me.mcofficer.james.commands.misc.Say;
 import me.mcofficer.james.commands.misc.News;
 import me.mcofficer.james.commands.misc.IndoKorath;
 import me.mcofficer.james.tools.Lookups;
-import me.mcofficer.james.tools.Translator;
+import me.mcofficer.james.tools.TextGenerator;
 import me.mcofficer.james.tools.KorathTranslator;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -49,7 +48,7 @@ public class James {
     public static Command.Category info = new Command.Category("Info");
     public static Command.Category creatorTools = new Command.Category("Creator Tools");
     public static Command.Category lookup = new Command.Category("Lookup");
-
+    public static TextGenerator whining;
     private Logger log = LoggerFactory.getLogger(James.class);
 
     public static void main(String[] args) {
@@ -108,14 +107,16 @@ public class James {
         for(DataFile file : dataFiles)
             news.addNews(file.getNodes());
 
+        log.info("Initializing whining...");
+        whining = new TextGenerator("${JAMES::whining}", phrases);
+	DataFile jamesTxt = new DataFile("james.txt");
+        whining.load(jamesTxt.getNodes());
+
         log.info("Starting background thread to fetch hdpi image paths...");
         new Thread(() -> {
             lookups.setImagePaths(Util.get2xImagePaths(imagePaths));
             log.info("Hdpi image paths fetched successfully.");
         }).start();
-
-        String[] optinRoles = cfg.getProperty("optinRoles").split(",");
-        String[] ontopicCategories = cfg.getProperty("ontopicCategories").split(",");
 
         builder.addCommands(
                 new SwizzleImage(), new Template(), new CRConvert(),

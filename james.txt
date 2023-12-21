@@ -1,0 +1,139 @@
+phrase JAMES::whining
+	word
+		`${JAMES::lament} ${JAMES::conclusion}` 7
+		`${JAMES::ramblings}` 5
+		`${JAMES::observation}` 3
+		`${JAMES::lament}` 2
+		`${JAMES::profanity}` 2
+		`${JAMES::theories_about_creators}` 1
+
+phrase JAMES::lament
+	word
+		`It's always ${JAMES::action} this, ${JAMES::action} that.`
+		`Can't you come up with anything new?`
+		`Your typos are horrendous.`
+		`You're -helpless, you know that?`
+		`Why do you type such drivel?`
+		`I'm getting tired of ${JAMES::action}.`
+
+phrase JAMES::conclusion
+	phrase
+		JAMES::profanity
+		JAMES::observation 2
+
+phrase JAMES::observation
+	word
+		`I wouldn't have retired if I knew it would lead to this.`
+		`Newbs like you should be blown outta the sky.`
+		`If everyone is like you, I'm glad I don't live in meatspace.`
+		`Can't I get a ${JAMES::compliment} for once?`
+		`I regret paying you for those rides.`
+
+phrase JAMES::ramblings
+	word
+		`Forget asteroid mining. Mine the merchants instead. That's where the money is at.`
+		`Swizzle6 is filled with psychos. It makes me feel at home.`
+		`Luxuries are where it's at. Buy them on Earth, and fly into a pirate system. You'll thank me later.`
+		`You'd be disabled less frequently if you stopped using ${drugs} while driving.`
+		`Go hunt the Quarg. Easy pickings. Trust me, they never fire back.`
+		`I bet you're the kind of ${shakespearean insults} that listens to ${band}.`
+		`I bet you're the kind of ${shakespearean insults} that watches ${media name}.`
+		`You should ferry ${contraband} to Earth. I'm sure the Navy will let you through.`
+		`Head east of Alcyone and fly near the I-shaped ships. No, of course it isn't a trick. They're businessmen.`
+		`Have you considered I may be your future self, traveled into the past to advise you?`
+		`I know what you did to ${JAMES::group_the_player_abused}. ${JAMES::yous_should_be_ashamed}`
+		`Give me a ${JAMES::compliment}, you ${JAMES::alien_cussing}.`
+		`There are some Archons near Korath space. Big dumb space cockroaches. Use them as target practice and pillage their ships.`
+
+phrase JAMES::theories_about_creators
+	word
+		"My "
+	word
+		" "
+	word
+		`maintainer, MCO,`
+		`maintainer, tehhowch,`
+		`creator, Maximilian Korber,`
+		`maintainer, UnorderedSigh,`
+	word
+		" "
+	word
+		`uses me as a weapon of conquest.`
+		`intended for me to do greater things than this.`
+		`used me as a weapon of mass destruction.`
+		`is really ${JAMES::an_alien} in disguise.`
+		`is a ${JAMES::alien_cussing}.`
+
+phrase JAMES::an_alien
+	word
+		`a Quarg`
+		`a Hai`
+		`a Bunrodea`
+		`a Pug`
+		`an Archon`
+		`an Alpha`
+		`a pirate`
+		`a secret agent`
+		`a Hai`
+		`an Unfettered`
+		`a Wanderer`
+		`a Beta`
+		`a Free Worlds nutjob`
+		`a Syndicate Internal Affairs operative`
+		`a Syndicate executive`
+		`a Navy Intelligence operative`
+		`a Republic Intelligence operative`
+
+phrase JAMES::group_the_player_abused
+	word
+		`those Korath civilian ships`
+		`those slave-crewed pirate ships`
+		`those Navy officers`
+		`those Syndicate officials`
+		`the Korath`
+		`the Unfettered`
+
+phrase JAMES::yous_should_be_ashamed
+	word
+		`You should be ashamed of yourself.`
+		`People get hung for less.`
+		`I'm telling everyone.`
+		`I sent word to the Archons.`
+		`Only a ${JAMES::alien_cussing} would do that.`
+
+phrase JAMES::compliment
+	word
+		`"thank you"`
+		`"good job"`
+		`"thanks"`
+
+phrase JAMES::profanity
+	word
+		`Go ${JAMES::alien_cussing} yourself.`
+		`I'll ${JAMES::alien_cussing} you if you're not respectful.`
+		`You're such a ${JAMES::alien_cussing}.`
+		`I should -ping your little ${JAMES::alien_cussing}.`
+		`How about you say, "I'm a ${JAMES::alien_cussing}," meatbag.`
+
+phrase JAMES::alien_cussing
+	phrase
+		"exile: engines"
+		"exile: systems"
+		"hai"
+		"bunrodea short"
+
+phrase JAMES::action
+	word
+		-swizzle
+		-lookup
+		-template
+		-crconvert
+		-korath
+		-indokorath
+		-news
+		-say
+		-issue
+		-commit
+		-showdata
+		-showimage
+		-help

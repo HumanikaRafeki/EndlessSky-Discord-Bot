@@ -21,6 +21,7 @@ public class Ping extends Command {
                 .setTitle("EndlessSky-Discord-Bot", James.GITHUB_URL)
                 .setDescription("Last heartbeat took " + ping + " ms (" + BPM + " BPM).")
                 .setColor(event.getGuild().getSelfMember().getColor())
+                .setFooter(James.whining.generate())
                 .build()
         );
     }
