@@ -19,7 +19,7 @@ public class Korath extends Command {
         this.translator = translator;
         name = "korath";
         help = "Applies the Korath encoding on <english>. Translate <english> from English to Indonesian, reverses letters in words, and passes it through the cipher.";
-        arguments = "<english>";
+        arguments = "<english>\n    <more english>...";
         category = James.misc;
     }
 

@@ -6,20 +6,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class NewsDatabase {
-    HashMap<String, News> news;
+    NewsDatabase parent;
+    HashMap<String, NewsStory> news;
+
     public NewsDatabase() {
-        news = new HashMap<String, News>();
+        this(null);
     }
+
+    public NewsDatabase(NewsDatabase parent) {
+        this.parent = parent;
+        news = new HashMap<String, NewsStory>();
+    }
+
     public void addNews(ArrayList<DataNode> data) {
         for(DataNode node : data)
             if(node.size() > 1 && node.token(0).equals("news"))
-                news.put(node.token(1), new News(node));
+                news.put(node.token(1), new NewsStory(node));
     }
 
-    public String getNews(String name, PhraseDatabase phrases, PhraseLimits limits) {
-        News item = news.getOrDefault(name, null);
-        if(item == null)
-            return null;
-        return item.toString(phrases, limits);
+    public NewsStory getNews(String name) {
+        NewsStory result = news.getOrDefault(name, null);
+        if(result == null && parent != null)
+            result = parent.getNews(name);
+        return result;
     }
 };

@@ -18,7 +18,7 @@ public class IndoKorath extends Korath {
         super(translator);
         name = "indokorath";
         help = "Applies the Korath cipher to <text>. The <text> should be in the Indonesian language.";
-        arguments = "<text>";
+        arguments = "<text>\n    <more text>...";
     }
 
     @Override

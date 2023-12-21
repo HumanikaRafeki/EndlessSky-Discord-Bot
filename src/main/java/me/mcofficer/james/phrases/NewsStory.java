@@ -4,20 +4,28 @@ import me.mcofficer.esparser.DataNode;
 
 import java.util.HashSet;
 
-public class News {
+public class NewsStory {
     Phrase name;
     Phrase message;
 
-    News(DataNode node) {
+    NewsStory(DataNode node) {
         name = null;
         message = null;
         for(DataNode child : node.getChildren())
             if(child.size() < 1)
                 continue;
-            else if(child.token(0) == "name")
+            else if(child.token(0).equals("name"))
                 name = new Phrase(child);
             else if(child.token(0).equals("message"))
                 message = new Phrase(child);
+    }
+
+    public Phrase getName() {
+        return name;
+    }
+
+    public Phrase getMessage() {
+        return message;
     }
 
     public String toString(PhraseDatabase phrases, PhraseLimits limits) {

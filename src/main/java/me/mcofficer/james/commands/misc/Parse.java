@@ -25,41 +25,49 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.HashMap;
 
-public class Parse extends Command {
+abstract class Parse extends Command {
 
-    private static long FILE_TIMEOUT = 30;
-    private static int MAX_INDIVIDUAL_FILE_SIZE = 300*1024;
-    private static int MAX_TOTAL_FILE_SIZE = 300*1024;
-    private static Pattern REPITITION = Pattern.compile("\\A(\\d+)\\s+");
-    private static int MAX_STRING_LENGTH = 1000;
-    private static int MAX_ENTRIES = 10;
-    private static int MAX_REPITITIONS = 20;
-    private static int MAX_OUTPUT_LINES = 50;
-    private static int MAX_PHRASE_BUFFER_SIZE = 10000;
-    private static int MAX_PHRASE_RECURSION_DEPTH = 7;
+    protected static final long FILE_TIMEOUT = 30;
+    protected static final int MAX_INDIVIDUAL_FILE_SIZE = 300*1024;
+    protected static final int MAX_TOTAL_FILE_SIZE = 300*1024;
+    protected static final Pattern REPITITION = Pattern.compile("\\A(\\d+)\\s+");
+    protected static final int MAX_STRING_LENGTH = 1000;
+    protected static final int MAX_ENTRIES = 10;
+    protected static final int MAX_REPITITIONS = 20;
+    protected static final int MAX_OUTPUT_LINES = 20;
+    protected static final int MAX_PHRASE_BUFFER_SIZE = 10000;
+    protected static final int MAX_PHRASE_RECURSION_DEPTH = 7;
 
-    private static PhraseDatabase gameDataPhrases = null;
-    private static NewsDatabase gameDataNews = null;
+    protected PhraseDatabase gameDataPhrases;
+    protected NewsDatabase gameDataNews;
 
     public Parse(PhraseDatabase gameDataPhrases, NewsDatabase gameDataNews) {
-        name = "parse";
-        help = "Parses attached game data files.";
-        arguments = "<attached txt files>";
-        category = James.misc;
         this.gameDataPhrases = gameDataPhrases;
         this.gameDataNews = gameDataNews;
     }
+
+    abstract protected boolean processInput(int count, PhraseDatabase phrases, NewsDatabase news, String entry, EmbedBuilder embed, PhraseLimits limits);
 
     @Override
     protected void execute(CommandEvent event) {
         String args = event.getArgs().trim(); // .replaceAll("[@#<>|*_ \t]+"," ");
 
         EmbedBuilder embed = new EmbedBuilder();
-        PhraseDatabase phrases = new PhraseDatabase(gameDataPhrases);
-        NewsDatabase news = new NewsDatabase();
         PhraseLimits limits = new PhraseLimits(MAX_PHRASE_BUFFER_SIZE, MAX_PHRASE_RECURSION_DEPTH);
+        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+        int status = 0;
 
-        int status = readAttachments(event.getMessage().getAttachments(), phrases, news, embed, limits);
+        PhraseDatabase phrases;
+        NewsDatabase news;
+        if(attachments.size() > 0) {
+            news = new NewsDatabase(gameDataNews);
+            phrases = new PhraseDatabase(gameDataPhrases);
+            status = readAttachments(attachments, phrases, news, embed, limits);
+        } else {
+            phrases = gameDataPhrases;
+            news = gameDataNews;
+        }
+
         if(status > 0)
             event.reply(embed.build());
         if(status != 0)
@@ -93,23 +101,6 @@ public class Parse extends Command {
         event.reply(embed.build());
     }
 
-    private boolean processInput(int count, PhraseDatabase phrases, NewsDatabase news, String entry, EmbedBuilder embed, PhraseLimits limits) {
-        String expanded = expandPhrases(count, phrases, entry, limits);
-        if(count < 1) {
-            embed.addField("Phrase \"" + entry + '"', "*Too many inputs! Use fewer phrases or repititions.*", false);
-            return false;
-        }
-        if(expanded == null)
-            embed.addField("Phrase \"" + entry + '"', "*Phrase not found!*", false);
-        else {
-            String title = "Phrase \"" + entry + '"';
-            if(count > 1)
-                title += " Repeated " + count + " Times";
-            embed.addField(title, "`" + expanded.replace("`","'") + "`", false);
-        }
-        return true;
-    }
-
     private int readAttachments(List<Message.Attachment> attachments, PhraseDatabase phrases, NewsDatabase news, EmbedBuilder embed, PhraseLimits limits) {
         String expanded = null;
         int status = 0;
@@ -119,7 +110,7 @@ public class Parse extends Command {
                 embed.addField(null, attachmentErrors, false).setTitle("Invalid Attachments");
                 return 1;
             }
-            status = readPhrasesFromAttachments(attachments, embed, phrases);
+            status = readFromAttachments(attachments, embed, phrases, news);
             if(status < 0) {
                 // Thread was interrupted and should exit as soon as possible.
                 System.out.println("thread interrupted");
@@ -129,25 +120,7 @@ public class Parse extends Command {
         return status;
     }
 
-    private String expandPhrases(int count, PhraseDatabase phrases, String phrase, PhraseLimits limits) {
-        StringBuilder builder = new StringBuilder();
-
-        Phrase gotten = phrases.get(phrase);
-        if(gotten == null)
-            return null;
-
-        for(int repeat = 0; repeat < count && builder.length() < MAX_STRING_LENGTH; repeat++)
-            builder.append(gotten.expand(phrases, limits)).append('\n');
-
-        // "very long string" becomes "very long s..."
-        if(builder.length() > MAX_STRING_LENGTH) {
-            builder.delete(MAX_STRING_LENGTH - 3, builder.length());
-            builder.append("...");
-        }
-        return builder.toString().replaceAll("[@#<>|*_ \t]+"," ");
-    }
-
-    private int readPhrasesFromAttachments(List<Message.Attachment> attachments, EmbedBuilder embed, PhraseDatabase phrases) {
+    private int readFromAttachments(List<Message.Attachment> attachments, EmbedBuilder embed, PhraseDatabase phrases, NewsDatabase news) {
         DataNodeStringLogger logger = new DataNodeStringLogger();
 
         for(Message.Attachment a : attachments) {
@@ -158,6 +131,7 @@ public class Parse extends Command {
                     continue;
                 }
                 phrases.addPhrases(file.getNodes());
+                news.addNews(file.getNodes());
                 logger.stopLogging();
                 logger.freeResources();
             } catch(IOException exc) {
