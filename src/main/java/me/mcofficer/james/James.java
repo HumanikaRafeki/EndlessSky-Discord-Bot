@@ -10,11 +10,7 @@ import me.mcofficer.james.commands.*;
 import me.mcofficer.james.commands.creatortools.*;
 import me.mcofficer.james.commands.info.*;
 import me.mcofficer.james.commands.lookup.*;
-import me.mcofficer.james.commands.misc.Korath;
-import me.mcofficer.james.commands.misc.Phrases;
-import me.mcofficer.james.commands.misc.Say;
-import me.mcofficer.james.commands.misc.News;
-import me.mcofficer.james.commands.misc.IndoKorath;
+import me.mcofficer.james.commands.misc.*;
 import me.mcofficer.james.tools.Lookups;
 import me.mcofficer.james.tools.TextGenerator;
 import me.mcofficer.james.tools.KorathTranslator;
@@ -49,6 +45,7 @@ public class James {
     public static Command.Category creatorTools = new Command.Category("Creator Tools");
     public static Command.Category lookup = new Command.Category("Lookup");
     public static TextGenerator whining;
+    public static TextGenerator mood;
     private Logger log = LoggerFactory.getLogger(James.class);
 
     public static void main(String[] args) {
@@ -109,8 +106,10 @@ public class James {
 
         log.info("Initializing whining...");
         whining = new TextGenerator("${JAMES::whining}", phrases);
+        mood = new TextGenerator("${JAMES::mood}", phrases);
 	DataFile jamesTxt = new DataFile("james.txt");
         whining.load(jamesTxt.getNodes());
+        mood.load(jamesTxt.getNodes());
 
         log.info("Starting background thread to fetch hdpi image paths...");
         new Thread(() -> {
@@ -123,7 +122,7 @@ public class James {
                 new Korath(new KorathTranslator(okHttpClient)),
                 new IndoKorath(new KorathTranslator(okHttpClient)),
                 new Phrases(phrases, news), new News(phrases, news), new Say(phrases, news),
-                new Info(githubToken), new Ping(),
+                new Info(githubToken), new Ping(), new Mood(),
                 new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups)
         );
     }
