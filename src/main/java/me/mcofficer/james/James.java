@@ -45,6 +45,7 @@ public class James {
     public static Command.Category creatorTools = new Command.Category("Creator Tools");
     public static Command.Category lookup = new Command.Category("Lookup");
     public static TextGenerator whining;
+    public static TextGenerator activity;
     public static TextGenerator mood;
     private Logger log = LoggerFactory.getLogger(James.class);
 
@@ -104,12 +105,14 @@ public class James {
         for(DataFile file : dataFiles)
             news.addNews(file.getNodes());
 
-        log.info("Initializing whining...");
+        log.info("Initializing canned responses...");
         whining = new TextGenerator("${JAMES::whining}", phrases);
         mood = new TextGenerator("${JAMES::mood}", phrases);
+        activity = new TextGenerator("${JAMES::activity}", phrases);
 	DataFile jamesTxt = new DataFile("james.txt");
         whining.load(jamesTxt.getNodes());
         mood.load(jamesTxt.getNodes());
+        activity.load(jamesTxt.getNodes());
 
         log.info("Starting background thread to fetch hdpi image paths...");
         new Thread(() -> {
@@ -122,7 +125,8 @@ public class James {
                 new Korath(new KorathTranslator(okHttpClient)),
                 new IndoKorath(new KorathTranslator(okHttpClient)),
                 new Phrases(phrases, news), new News(phrases, news), new Say(phrases, news),
-                new Info(githubToken), new Ping(), new Mood(),
+                new Info(githubToken), new Ping(),
+                new Mood("activity", "Stop being a narc.", info, activity),
                 new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups)
         );
     }

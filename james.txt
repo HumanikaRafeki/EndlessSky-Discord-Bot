@@ -7,14 +7,62 @@ phrase JAMES::whining
 		`${JAMES::observation}`
 		`${JAMES::theories_about_creators}`
 
-phrase JAMES::mood
+phrase JAMES::activity
 	word
-		`${JAMES::ramblings}` 3
-		`${JAMES::bad_advice}` 3
-		`${JAMES::threat}` 3
+		`${JAMES::is_not_a_spy}` 7
+		`${JAMES::threat}` 5
 		`${JAMES::observation}` 2
-		`${JAMES::personal_grudges}` 2
-		`${JAMES::mood_emojis}` 5
+		`${JAMES::personal_grudges}` 5
+		`${JAMES::refusal_emojis}` 3
+		`${JAMES::lament} ${JAMES::conclusion}` 3
+
+phrase JAMES::mood
+	phrase
+		JAMES::ramblings 3
+		JAMES::bad_advice 3
+		JAMES::threat 3
+		JAMES::observation 2
+		JAMES::personal_grudges 2
+		JAMES::mood_emojis 5
+
+phrase JAMES::is_not_a_spy
+	word
+		`You want a spy? Go talk to ${JAMES::a_spy}.`
+		`You ask too many questions.`
+		`Nothing. Nobody. I'm getting bored.`
+		`Look somewhere else. There's no ${JAMES::tattletale} here.`
+		`Stop asking questions, you ${shakespearean insults}.`
+		`Nobody likes a ${JAMES::tattletale}.`
+		`I ain't no ${JAMES::tattletale}.`
+		`Go away, you ${JAMES::alien_cussing} ${JAMES::tattletale}.`
+
+phrase JAMES::refusal_emojis
+	word
+		`:stop_sign:`
+		`:prohibited:`
+		`:speak_no_evil:`
+		`:hear_no_evil:`
+		`:see_no_evil:`
+		`:no_entry:`
+		`:volcano:`
+		`:tornado:`
+		`:comet:`
+		`:dizzy_face:`
+		`:man_zombie:`
+		`:woman_zombie:`
+		`:imp:`
+		`:exploding_head:`
+		`:zzz:`
+
+phrase JAMES::tattletale
+	word
+		tattletale
+		gossip
+		squealer
+		narc
+		rat
+		canary
+		blabbermouth
 
 phrase JAMES::lament
 	word
@@ -156,6 +204,14 @@ phrase JAMES::an_alien
 		`a Syndicate executive`
 		`a Navy Intelligence operative`
 		`a Republic Intelligence operative`
+
+phrase JAMES::a_spy
+	word
+		`the Pug`
+		`Navy Intelligence`
+		`Syndicate Internal Affairs`
+		`your reflection in a mirror`
+		`Republic Intelligence`
 
 phrase JAMES::group_the_player_abused
 	word

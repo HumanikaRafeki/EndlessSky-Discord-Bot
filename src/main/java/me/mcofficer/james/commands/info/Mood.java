@@ -1,6 +1,6 @@
 package me.mcofficer.james.commands.misc;
 
-import me.mcofficer.james.James;
+import me.mcofficer.james.tools.TextGenerator;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
@@ -9,19 +9,20 @@ import java.util.Random;
 public class Mood extends Command {
 
     protected static final int MAX_REPITITIONS = 20;
+    private final TextGenerator generator;
 
-    public Mood() {
-        name = "mood";
-        help = "How is James feeling right now?";
+    public Mood(String name, String help, Command.Category category, TextGenerator generator) {
+        this.name = name;
+        this.help = help;
+        this.generator = generator;
         arguments = "[<count>]";
-        category = James.info;
+        this.category = category;
     }
 
     @Override
     protected void execute(CommandEvent event) {
         String[] args = event.getArgs().trim().split("\s+");
         int count = 1;
-        System.out.println(event.getArgs().trim());
         if(args.length > 0 && args[0].length() > 0) {
             try {
                 count = Integer.parseInt(args[0], 10);
@@ -35,7 +36,7 @@ public class Mood extends Command {
         for(int i = 0; i < count; i++) {
             if(i > 0)
 		builder.append('\n');
-            builder.append(James.mood.generate());
+            builder.append(generator.generate());
 	}
         event.reply(builder.toString());
     }

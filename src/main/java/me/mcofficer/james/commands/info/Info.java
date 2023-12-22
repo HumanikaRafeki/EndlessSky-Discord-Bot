@@ -38,7 +38,8 @@ public class Info extends Command {
         EmbedBuilder builder = new EmbedBuilder()
                 .setTitle("EndlessSky-Discord-Bot", James.GITHUB_URL)
                 .setColor(event.getGuild().getSelfMember().getColor())
-                .setDescription(description);
+                .setDescription(description)
+                .setFooter(James.mood.generate());
         event.reply(builder.build());
     }
 
