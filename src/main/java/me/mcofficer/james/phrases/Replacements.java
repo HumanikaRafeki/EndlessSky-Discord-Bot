@@ -33,14 +33,16 @@ class Replacements implements PhraseExpander {
             int point = 0;
             while(point < result.length()) {
                 int next = result.indexOf(key, point);
-                if(next < point)
+                if(next < 0)
                     break;
                 int change = valueLen - keyLen;
                 if(change > 0 && limits.canExpandBy(change, result)) {
                     result.replace(next, next + keyLen, value);
                     point = next + valueLen;
-                } else
+                } else if(change <= 0) {
+                    result.replace(next, next + keyLen, value);
                     point = next + keyLen;
+                }
             }
         }
     }
