@@ -14,8 +14,11 @@ import java.io.IOException;
 
 import me.mcofficer.james.tools.Translator;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.User;
 
 public class KorathTranslator extends Translator {
+
+    private static final int INLINE_CUTOFF = 100;
 
     private static Map<Character, Character> toExile = createExileMap();
     private static Map<Character, Character> toEfreti = createEfretiMap();
@@ -29,41 +32,45 @@ public class KorathTranslator extends Translator {
      * @param query The text to "translate" into Korath
      * @return The translated text. Will need massaging to be usable in game.
      */
-    public void korath(String query, EmbedBuilder embed) throws IOException{
+    public void korath(String query, EmbedBuilder embed, User author) throws IOException{
         embed.setFooter("This tool only aids translation. You must massage the words for readability. Sometimes the cipher will produce obscene or offensive terms. Words with standard translations, like human/Humani, won't be correct. ");
         String clean = cleanQuery(query);
-        embed.addField("English", clean, false);
+        embed.setDescription("<@" + author.getId() + "> said:");
+        boolean inline = clean.length() < INLINE_CUTOFF;
+        embed.addField("English", clean, inline);
 
         String indonesian = translate("en", "id", clean).toLowerCase(indonesia);
-        embed.addField("Indonesian", indonesian, false);
+        embed.addField("Indonesian", indonesian, inline);
 
-        cipherSteps(indonesian, embed);
+        cipherSteps(indonesian, embed, inline);
     }
 
     /**
      * @param query Text to pass through the Korath letter cipher.
      * @return The ciphered text. Will need massaging to be usable in game.
      */
-    public void indokorath(String query, EmbedBuilder embed) throws IOException{
+    public void indokorath(String query, EmbedBuilder embed, User author) throws IOException{
         embed.setFooter("This tool only aids translation. You must massage the words for readability. Sometimes the cipher will produce obscene or offensive terms. Words with standard translations, like human/Humani, won't be correct. ");
         String indonesian = cleanQuery(query).toLowerCase(indonesia);
-        embed.addField("Indonesian", indonesian, false);
-        cipherSteps(indonesian, embed);
+        embed.setDescription("<@" + author.getId() + "> said:");
+        boolean inline = indonesian.length() < INLINE_CUTOFF;
+        embed.addField("Indonesian", indonesian, inline);
+        cipherSteps(indonesian, embed, inline);
     }
 
     private String cleanQuery(String query) {
         return query.replaceAll("\\R+", "\n").replaceAll("[ \t]+", " ").replaceAll("<[^>\\p{Space}]*>", "");
     }
 
-    private void cipherSteps(String query, EmbedBuilder embed) throws IOException{
+    private void cipherSteps(String query, EmbedBuilder embed, boolean inline) throws IOException{
         char[][] reversed = reverseStrings(query);
 
         char[][] korath = new char[reversed.length][];
         applyCipher(reversed, korath, toExile);
-        embed.addField("Exile", join(korath), false);
+        embed.addField("Exile", join(korath), inline);
 
         applyCipher(reversed, korath, toEfreti);
-        embed.addField("Efreti", join(korath), false);
+        embed.addField("Efreti", join(korath), inline);
     }
 
     private char[][] reverseStrings(String from) {

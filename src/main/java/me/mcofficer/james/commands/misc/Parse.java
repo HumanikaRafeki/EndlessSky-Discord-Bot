@@ -55,6 +55,7 @@ abstract class Parse extends Command {
         String args = event.getArgs().trim(); // .replaceAll("[@#<>|*_ \t]+"," ");
 
         EmbedBuilder embed = new EmbedBuilder();
+        embed.setDescription("Requested by <@" + event.getAuthor().getId() + ">.");
         PhraseLimits limits = new PhraseLimits(MAX_PHRASE_BUFFER_SIZE, MAX_PHRASE_RECURSION_DEPTH);
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         int status = 0;

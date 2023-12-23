@@ -6,6 +6,7 @@ import me.mcofficer.james.James;
 import me.mcofficer.james.commands.misc.Korath;
 import me.mcofficer.james.tools.KorathTranslator;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.User;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,8 +23,8 @@ public class IndoKorath extends Korath {
     }
 
     @Override
-    protected void runTranslator(String query, EmbedBuilder builder) throws IOException {
+    protected void runTranslator(String query, EmbedBuilder builder, User author) throws IOException {
         builder.setTitle("Korath Cipher");
-        translator.indokorath(query, builder);
+        translator.indokorath(query, builder, author);
     }
 }
