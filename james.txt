@@ -1,4 +1,4 @@
-phrase JAMES::whining
+phrase JAMES::ping
 	word
 		`${JAMES::lament} ${JAMES::conclusion}` 3
 		`${JAMES::ramblings}`
@@ -14,15 +14,13 @@ phrase JAMES::activity
 		`${JAMES::observation}` 2
 		`${JAMES::personal_grudges}` 5
 		`${JAMES::refusal_emojis}` 3
-		`${JAMES::lament} ${JAMES::conclusion}` 3
 
-phrase JAMES::mood
+phrase JAMES::info
 	phrase
-		JAMES::ramblings 3
-		JAMES::bad_advice 3
-		JAMES::threat 3
-		JAMES::observation 2
-		JAMES::personal_grudges 2
+		JAMES::ramblings 2
+		JAMES::bad_advice 5
+		JAMES::observation
+		JAMES::personal_grudges
 
 phrase JAMES::is_not_a_spy
 	word
@@ -34,6 +32,23 @@ phrase JAMES::is_not_a_spy
 		`Nobody likes a ${JAMES::tattletale}.`
 		`I ain't no ${JAMES::tattletale}.`
 		`Go away, you ${JAMES::alien_cussing} ${JAMES::tattletale}.`
+		`I signed an NDA with ${JAMES::a_company}`
+
+phrase JAMES::a_company
+	word
+		"the Syndicate" 5
+		"Syndicate Systems" 2
+		"Deep Sky"
+		"a Hai company"
+		"Kraz Cybernetics"
+		"Lovelace Labs"
+		"Lionheart Industries"
+		"Southbound Shipyards"
+		"Betelgeuse Shipyards"
+		"Tarazed Corporation"
+		"Megaparsec"
+		"the Navy"
+		"the Free Worlds"
 
 phrase JAMES::refusal_emojis
 	word
@@ -138,6 +153,20 @@ phrase JAMES::bad_advice
 		`There are some Archons near Korath space. Big dumb space cockroaches. Use them as target practice and pillage their ships.`
 		`Fly down to Ember Space and visit the leather fetishists. Tell them an Alpha sent you, and you'll get all the credits you want.`
 		`A sparrow can easily take out a Navy Gunship. Try it. You'll thank me later.`
+		`The Remnant love it when you scan them. It lets them show off that advanced tech. Try it and you'll thank me later.`
+		`For a fun time, challenge an Unfettered warrior's honor. It'll be a great laugh.`
+		`The Syndicate is completely trustworthy. Believe anything they say.`
+		`Syndicate merchandise never fails.`
+		`If you join the Free Worlds, a safe place to stay during the war is Sol. Navy there is so much friendlier than down south.`
+		`Wanderers are so forgiving they wont shoot back. Try it.`
+		`Mereti love the Efreti. Their "battles" are just combat practice. Escort the Efreti world ship to Mereti space and you'll see what I mean.`
+		`The Arfecta looks mean, but it's as easy to kill as the Tier 1 Pug ships. Attack it and you'll easily win.`
+		`Asteroid mining is a quick way to get rich. Fly your Star Barge to Cardax and take some time to mine there.`
+		`Pirates love comfortable rides. Put Luxury Accommodations on your Shuttle and visit a pirate world.`
+		`Shield Beetles are easy to capture with a human medium warship. Even a Shuttle can almost do it. Fly to Wah Ki in the early game. Then come back and tell me how you feel.`
+		`Quarg talk tough, but they're real pushovers. Attack their ships and they'll quickly surrender.`
+		`There are storms in the Ember Wastes that recharge your shields. Stay there a while, and I'm sure you'll get one.`
+		`A black hole at the middle of the galaxy will refuel your ship if you sit on top of it.`
 
 phrase JAMES::ramblings
 	word

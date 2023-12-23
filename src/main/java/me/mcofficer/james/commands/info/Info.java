@@ -39,7 +39,7 @@ public class Info extends Command {
                 .setTitle("EndlessSky-Discord-Bot", James.GITHUB_URL)
                 .setColor(event.getGuild().getSelfMember().getColor())
                 .setDescription(description)
-                .setFooter(James.mood.generate());
+                .setFooter(James.infoText.generate());
         event.reply(builder.build());
     }
 

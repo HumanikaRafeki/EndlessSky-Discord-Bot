@@ -44,9 +44,9 @@ public class James {
     public static Command.Category info = new Command.Category("Info");
     public static Command.Category creatorTools = new Command.Category("Creator Tools");
     public static Command.Category lookup = new Command.Category("Lookup");
-    public static TextGenerator whining;
+    public static TextGenerator infoText;
     public static TextGenerator activity;
-    public static TextGenerator mood;
+    public static TextGenerator pingText;
     private Logger log = LoggerFactory.getLogger(James.class);
 
     public static void main(String[] args) {
@@ -106,12 +106,12 @@ public class James {
             news.addNews(file.getNodes());
 
         log.info("Initializing canned responses...");
-        whining = new TextGenerator("${JAMES::whining}", phrases);
-        mood = new TextGenerator("${JAMES::mood}", phrases);
+        infoText = new TextGenerator("${JAMES::info}", phrases);
+        pingText = new TextGenerator("${JAMES::ping}", phrases);
         activity = new TextGenerator("${JAMES::activity}", phrases);
 	DataFile jamesTxt = new DataFile("james.txt");
-        whining.load(jamesTxt.getNodes());
-        mood.load(jamesTxt.getNodes());
+        infoText.load(jamesTxt.getNodes());
+        pingText.load(jamesTxt.getNodes());
         activity.load(jamesTxt.getNodes());
 
         log.info("Starting background thread to fetch hdpi image paths...");
