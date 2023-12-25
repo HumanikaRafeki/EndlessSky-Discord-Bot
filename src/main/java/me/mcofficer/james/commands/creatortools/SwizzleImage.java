@@ -27,8 +27,8 @@ public class SwizzleImage extends Command {
             event.reply("Please attach one or more images.");
         else
             for (Message.Attachment a : attachments) {
-                if (a.getWidth() > 1000 || a.getHeight() > 1000) {
-                    event.reply(a.getFileName() + " is larger than 1000px.");
+                if (a.getWidth() > 1080 || a.getHeight() > 1080) {
+                    event.reply(a.getFileName() + " is larger than 1080px.");
                     continue;
                 }
 
