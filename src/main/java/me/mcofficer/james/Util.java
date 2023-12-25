@@ -197,6 +197,7 @@ public class Util {
                 .setSelection(selection)
                 .setUsers(event.getAuthor())
                 .useCancelButton(true)
+                .allowTextInput(false)
                 .setDescription("**Found the following Nodes:**")
                 .setColor(event.getGuild().getSelfMember().getColor());
         matches.forEach(node -> builder.addChoice(String.join(" ", node.getTokens())));
