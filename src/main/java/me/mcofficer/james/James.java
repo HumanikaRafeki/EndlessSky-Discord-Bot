@@ -28,6 +28,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class James {
 
@@ -35,7 +36,7 @@ public class James {
     public final static String GITHUB_RAW_URL = "https://raw.githubusercontent.com/EndlessSkyCommunity/EndlessSky-Discord-Bot/master/";
     public final static String ES_GITHUB_URL = "https://github.com/endless-sky/endless-sky/";
 
-    public final static EventWaiter eventWaiter = new EventWaiter();
+    public final static EventWaiter eventWaiter = new EventWaiter(new ScheduledThreadPoolExecutor(8), true);
     private final OkHttpClient okHttpClient = new OkHttpClient();
     private static Properties cfg = new Properties();
 
