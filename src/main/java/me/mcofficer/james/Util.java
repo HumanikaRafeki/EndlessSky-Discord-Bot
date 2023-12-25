@@ -31,7 +31,7 @@ import java.util.function.BiConsumer;
 public class Util {
 
     private static Logger log = LoggerFactory.getLogger(Util.class);
-
+    private static final long MENU_TIMEOUT_SECONDS = 60;
     private static OkHttpClient _client = null;
 
     /**
@@ -193,6 +193,7 @@ public class Util {
     public static void displayNodeSearchResults(List<DataNode> matches, CommandEvent event, BiConsumer<Message, Integer> selection) {
         OrderedMenu.Builder builder = new OrderedMenu.Builder()
                 .setEventWaiter(James.eventWaiter)
+                .setTimeout(MENU_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                 .setSelection(selection)
                 .setUsers(event.getAuthor())
                 .useCancelButton(true)
