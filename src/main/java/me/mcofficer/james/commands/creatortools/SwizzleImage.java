@@ -27,8 +27,14 @@ public class SwizzleImage extends Command {
             event.reply("Please attach one or more images.");
         else
             for (Message.Attachment a : attachments) {
-                if (a.getWidth() > 1080 || a.getHeight() > 1080) {
+                if (a.getWidth() < 1 || a.getHeight() < 1) {
+                    event.reply(a.getFileName() + " is not an image.");
+                    continue;
+                } else if (a.getWidth() > 1080 || a.getHeight() > 1080) {
                     event.reply(a.getFileName() + " is larger than 1080px.");
+                    continue;
+                } else if (a.getFileName().endsWith("webp")) {
+                    event.reply(a.getFileName() + " is webp. I can't use webp files yet.");
                     continue;
                 }
 
@@ -38,6 +44,9 @@ public class SwizzleImage extends Command {
                     }
                     catch (IOException e) {
                         e.printStackTrace();
+                    } catch(Exception ee) {
+                        ee.printStackTrace();
+                        throw ee;
                     }
                 });
             }
