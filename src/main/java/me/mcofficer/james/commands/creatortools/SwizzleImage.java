@@ -33,9 +33,6 @@ public class SwizzleImage extends Command {
                 } else if (a.getWidth() > 1080 || a.getHeight() > 1080) {
                     event.reply(a.getFileName() + " is larger than 1080px.");
                     continue;
-                } else if (a.getFileName().endsWith("webp")) {
-                    event.reply(a.getFileName() + " is webp. I can't use webp files yet.");
-                    continue;
                 }
 
                 a.retrieveInputStream().thenAccept(inputStream -> {

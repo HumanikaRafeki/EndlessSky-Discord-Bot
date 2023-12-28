@@ -1,3 +1,6 @@
 [submodule "esparser"]
 	path = esparser
 	url = https://github.com/HumanikaRafeki/ESParser-java
+[submodule "TwelveMonkeys"]
+	path = TwelveMonkeys
+	url = https://github.com/haraldk/TwelveMonkeys
